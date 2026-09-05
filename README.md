@@ -1044,14 +1044,13 @@ Las demás funcionalidades se implementarán progresivamente conforme avance el 
 
 ### Integrantes
 
-- 👨‍💻 Integrante 1
-- 👨‍💻 Integrante 2
-- 👨‍💻 Integrante 3
-- 👨‍💻 Integrante 4
-
+- Ramírez Salazar, Piero Alessandro
+- Sánchez Reyes, Jesús Andrés 
+- Suárez Vargas, César Manuel
+- Torres Ayala, Samuel Jeremy 
 ### Docente
 
-**Mg. Miguel Angel Huerta Rojas**
+**Aguilar Suares Marlene Pilar**
 
 ---
 
