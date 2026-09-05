@@ -1,689 +1,1084 @@
 # 📚 Marketplace de Libros
 
-<p align="center">
-  <strong>Aplicación móvil multiplataforma para la búsqueda, comparación y compra de libros físicos y digitales.</strong>
-</p>
+Aplicación móvil multiplataforma para la **compra y venta simulada de libros físicos nuevos y usados entre usuarios**.
 
-<p align="center">
-  📱 React Native · ⚡ Expo · 🗄️ Supabase · 🐘 PostgreSQL · 📖 Google Books API
-</p>
+📱 React Native · ⚡ Expo · ☁️ Supabase · 🐘 PostgreSQL
 
 ---
 
-## 📌 Descripción
+# 📌 Descripción
 
-**Marketplace de Libros** es una aplicación móvil multiplataforma desarrollada con **React Native y Expo**, cuyo objetivo es centralizar en una sola plataforma la búsqueda, visualización, comparación y compra de libros físicos y digitales.
+**Marketplace de Libros** es una aplicación móvil multiplataforma desarrollada con **React Native y Expo** que permite a usuarios registrados comprar y vender libros físicos nuevos o usados desde una misma cuenta.
 
-La aplicación permite a los usuarios explorar un catálogo de libros obtenido mediante la **Google Books API**, consultar información detallada de cada producto, administrar favoritos, agregar libros a un carrito de compras y realizar un proceso de checkout con un método de pago simulado.
+Para acceder a las funcionalidades de la aplicación, el usuario deberá obligatoriamente **registrarse o iniciar sesión**.
 
-La información de usuarios, pedidos, direcciones y favoritos se almacena en la nube utilizando **Supabase**, mientras que determinadas funcionalidades del dispositivo, como la cámara y la geolocalización, son utilizadas directamente desde la aplicación móvil.
+Una vez autenticado, cualquier usuario podrá actuar tanto como **comprador** como **vendedor**, sin necesidad de crear diferentes tipos de cuenta.
 
----
+Cuando un usuario desea vender un libro, podrá crear su propia publicación ingresando información como:
 
-## 🎯 Objetivo del proyecto
+- Título.
+- Autor.
+- Categoría.
+- ISBN opcional.
+- Estado del libro.
+- Precio.
+- Descripción.
+- Fotografías propias del ejemplar.
 
-Desarrollar una aplicación móvil multiplataforma que permita a los usuarios **buscar, comparar y comprar libros físicos y digitales**, centralizando el catálogo, el proceso de compra y el seguimiento de pedidos en una única plataforma.
+Las fotografías podrán ser tomadas utilizando la cámara del dispositivo o seleccionadas desde la galería.
 
-### Objetivos específicos
+Los usuarios interesados en comprar podrán explorar las publicaciones disponibles, buscar libros, aplicar filtros, consultar los detalles de una publicación, agregar productos al carrito y completar un proceso de compra mediante un **pago simulado**.
 
-* 🔎 Implementar un catálogo con buscador, categorías y filtros.
-* 📖 Mostrar información detallada de cada libro.
-* 🛒 Implementar un carrito de compras persistente.
-* 💳 Desarrollar un flujo de checkout con pago simulado.
-* 📦 Permitir consultar el estado e historial de pedidos.
-* ❤️ Implementar un sistema de libros favoritos.
-* 📍 Utilizar geolocalización para facilitar el registro de direcciones.
-* 📷 Permitir actualizar la foto de perfil utilizando la cámara del dispositivo.
-* ☁️ Mantener la información persistente mediante una base de datos en la nube.
-* 🌙 Incorporar modo claro y modo oscuro.
+La aplicación utilizará **Supabase** como Backend as a Service para autenticación, base de datos y almacenamiento de fotografías.
 
 ---
 
-# ✨ Características principales
+# ❗ Problema
 
-## 🔐 Autenticación
+La compra y venta de libros usados suele realizarse mediante redes sociales, grupos de mensajería o plataformas generales de comercio electrónico.
 
-* Registro de nuevos usuarios.
-* Inicio de sesión.
-* Gestión de credenciales mediante Supabase Auth.
-* Persistencia de sesión.
+Estos medios no están orientados específicamente a libros y pueden dificultar actividades como:
 
-## 📚 Catálogo de libros
+- Encontrar publicaciones de libros específicos.
+- Comparar precios.
+- Identificar el estado físico de un ejemplar.
+- Organizar publicaciones propias.
+- Gestionar libros que se desean vender.
+- Mantener un registro de compras y ventas.
 
-* Catálogo obtenido desde **Google Books API**.
-* Búsqueda por título.
-* Búsqueda por autor.
-* Categorías.
-* Filtros por formato.
-* Información detallada de cada libro.
-
-## 🔍 Detalle del libro
-
-Cada producto puede mostrar información relevante para la decisión de compra:
-
-* Título.
-* Autor.
-* Categoría.
-* Precio.
-* Calificación.
-* Formato.
-* Descripción.
-
-## 🛒 Carrito de compras
-
-* Agregar libros.
-* Eliminar libros.
-* Modificar cantidades.
-* Mantener el carrito de forma persistente.
-* Revisar el resumen antes de confirmar el pedido.
-
-## ❤️ Favoritos
-
-Los usuarios pueden:
-
-* Agregar libros a favoritos.
-* Eliminar libros de favoritos.
-* Consultar sus libros guardados.
-
-## 📦 Pedidos
-
-El sistema permite:
-
-* Registrar una dirección de entrega.
-* Revisar el resumen del pedido.
-* Seleccionar un método de pago simulado.
-* Confirmar la compra.
-* Consultar el estado del pedido.
-* Consultar el historial de pedidos.
-
-## 📍 Geolocalización
-
-La aplicación utiliza el GPS del dispositivo para facilitar el ingreso de la dirección de entrega mediante funcionalidades de geolocalización.
-
-## 📷 Cámara
-
-El usuario puede actualizar su foto de perfil utilizando la cámara o selector de imágenes del dispositivo.
-
-## 🔔 Notificaciones
-
-Después de confirmar un pedido, la aplicación genera una **notificación local** para informar al usuario sobre la confirmación.
-
-## 🌙 Tema visual
-
-La aplicación incorpora:
-
-* ☀️ Modo claro.
-* 🌙 Modo oscuro.
-
-La preferencia del tema se mantiene utilizando almacenamiento local.
+Por ello, se propone desarrollar una aplicación móvil especializada en la **compra y venta de libros físicos entre usuarios**, permitiendo centralizar estas operaciones dentro de una única plataforma.
 
 ---
 
-# 🏗️ Arquitectura
+# 🎯 Objetivo general
 
-La aplicación utiliza una arquitectura **cliente-servidor**, donde el cliente móvil desarrollado con React Native y Expo se comunica con diferentes servicios externos.
-
-```text
-                         ┌──────────────────────┐
-                         │       USUARIO        │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │   React Native      │
-                         │       + Expo        │
-                         └──────────┬───────────┘
-                                    │
-                   ┌────────────────┼─────────────────┐
-                   │                │                 │
-                   ▼                ▼                 ▼
-          ┌────────────────┐ ┌───────────────┐ ┌────────────────┐
-          │    Supabase    │ │ Google Books  │ │ Expo Modules   │
-          │                │ │      API      │ │                │
-          │ • Auth         │ │               │ │ • Camera       │
-          │ • PostgreSQL   │ │ • Catálogo    │ │ • Location     │
-          │ • Storage      │ │   de libros   │ │ • Notifications│
-          └────────────────┘ └───────────────┘ └────────────────┘
-                   │
-                   ▼
-          ┌────────────────────┐
-          │ Información        │
-          │ persistente        │
-          │ de usuarios,       │
-          │ pedidos y favoritos│
-          └────────────────────┘
-```
-
-La arquitectura y las tecnologías utilizadas se encuentran definidas en la documentación del proyecto.
+Desarrollar una aplicación móvil multiplataforma que permita a usuarios registrados **comprar y vender libros físicos nuevos o usados**, centralizando la creación de publicaciones, búsqueda de productos, carrito, compra simulada y gestión de compras y ventas.
 
 ---
 
-# 🛠️ Tecnologías utilizadas
+# 🎯 Objetivos específicos
 
-| Tecnología                       | Uso                                      |
-| -------------------------------- | ---------------------------------------- |
-| ⚛️ **React Native**              | Desarrollo de la aplicación móvil        |
-| ⚡ **Expo**                       | Entorno y herramientas para React Native |
-| ☁️ **Supabase**                  | Backend como servicio                    |
-| 🐘 **PostgreSQL**                | Base de datos                            |
-| 🔐 **Supabase Auth**             | Autenticación de usuarios                |
-| 🗄️ **Supabase Storage**         | Almacenamiento de archivos               |
-| 📖 **Google Books API**          | Obtención del catálogo de libros         |
-| 💾 **AsyncStorage**              | Persistencia local                       |
-| 📷 **Expo Camera / ImagePicker** | Gestión de fotografías                   |
-| 📍 **Expo Location**             | Geolocalización                          |
-| 🔔 **Expo Notifications**        | Notificaciones locales                   |
-| 🧭 **React Navigation**          | Navegación entre pantallas               |
-
-Estas tecnologías corresponden a la arquitectura tecnológica definida para el proyecto.
+- 🔐 Implementar el registro e inicio de sesión de usuarios.
+- 🏠 Implementar un marketplace de publicaciones de libros.
+- 🔎 Permitir buscar libros por título o autor.
+- 🎛️ Implementar filtros para facilitar la búsqueda.
+- 📝 Permitir que cualquier usuario publique libros para vender.
+- 📷 Permitir agregar fotografías propias a las publicaciones.
+- ✏️ Permitir modificar publicaciones propias.
+- 🗑️ Permitir retirar publicaciones.
+- 🛒 Implementar un carrito de compras.
+- 💳 Implementar un proceso de checkout con pago simulado.
+- 📍 Facilitar el registro de direcciones mediante geolocalización.
+- 📦 Permitir consultar las compras realizadas.
+- 💰 Permitir consultar las ventas realizadas.
+- 👤 Permitir gestionar el perfil del usuario.
+- 🔔 Incorporar notificaciones locales.
+- 🌙 Incorporar modo claro y modo oscuro.
+- ☁️ Mantener información persistente mediante Supabase.
 
 ---
 
-# 🗃️ Modelo de datos
+# 👤 Actor del sistema
 
-La base de datos se implementa mediante **Supabase PostgreSQL**.
+## Usuario
 
-Las principales entidades son:
+La aplicación utiliza un **único tipo de usuario**.
 
-```text
-USUARIOS
+Para acceder al Marketplace, el usuario deberá encontrarse autenticado.
+
+El mismo usuario podrá realizar operaciones de compra y venta desde una única cuenta.
+
+### El usuario podrá:
+
+#### 🔐 Cuenta
+
+- Registrarse.
+- Iniciar sesión.
+- Recuperar su contraseña.
+- Mantener su sesión iniciada.
+- Cerrar sesión.
+
+#### 🛒 Como comprador
+
+- Explorar publicaciones.
+- Buscar libros.
+- Aplicar filtros.
+- Consultar detalles de publicaciones.
+- Agregar publicaciones al carrito.
+- Eliminar publicaciones del carrito.
+- Registrar o seleccionar una dirección.
+- Realizar una compra simulada.
+- Consultar sus compras.
+- Consultar el estado de sus pedidos.
+
+#### 📝 Como vendedor
+
+- Crear publicaciones.
+- Registrar información del libro.
+- Subir fotografías propias.
+- Editar publicaciones propias.
+- Retirar publicaciones.
+- Consultar sus publicaciones.
+- Consultar las ventas realizadas.
+
+#### 👤 Cuenta y configuración
+
+- Consultar su perfil.
+- Modificar información personal.
+- Actualizar su fotografía.
+- Cambiar entre modo claro y oscuro.
+
+---
+
+# 🔒 Regla de acceso
+
+Las funcionalidades principales de la aplicación requieren autenticación.
+
+El flujo inicial será:
+
+ABRIR APLICACIÓN
+       │
+       ▼
+¿TIENE UNA CUENTA?
+   │           │
+   NO          SÍ
+   │           │
+   ▼           ▼
+REGISTRO     LOGIN
+   │           │
+   └─────┬─────┘
+         ▼
+ USUARIO AUTENTICADO
+         │
+         ▼
+    MARKETPLACE
+
+No existirá acceso al marketplace como usuario invitado.
+
+🧩 Módulos del sistema
+
+La aplicación se divide en los siguientes módulos:
+
+Código	Módulo
+M01	Autenticación
+M02	Marketplace
+M03	Gestión de publicaciones
+M04	Carrito
+M05	Checkout
+M06	Compras y pedidos
+M07	Ventas
+M08	Perfil
+M09	Configuración y notificaciones
+🔐 M01 — Autenticación
+
+El módulo permitirá gestionar el acceso a la aplicación.
+
+Incluye:
+
+Registro de usuario.
+Inicio de sesión.
+Recuperación de contraseña.
+Persistencia de sesión.
+Cierre de sesión.
+
+La autenticación será gestionada mediante Supabase Auth.
+
+🏠 M02 — Marketplace
+
+El Marketplace será la pantalla principal después de iniciar sesión.
+
+Mostrará las publicaciones activas realizadas por los usuarios.
+
+Cada publicación podrá mostrar información resumida como:
+
+Fotografía principal.
+Título.
+Autor.
+Precio.
+Estado del ejemplar.
+Nombre del vendedor.
+
+Desde el marketplace se podrá acceder al detalle completo de una publicación.
+
+🔎 Búsqueda
+
+Los usuarios podrán buscar publicaciones mediante:
+
+Título.
+Autor.
+
+La búsqueda permitirá reducir las publicaciones visibles de acuerdo con el texto ingresado.
+
+🎛️ Filtros
+
+La aplicación podrá incluir filtros como:
+
+Categoría.
+Estado del libro.
+Precio mínimo.
+Precio máximo.
+Estado del libro
+
+Las opciones inicialmente consideradas son:
+
+Nuevo.
+Como nuevo.
+Bueno.
+Regular.
+📖 Detalle de publicación
+
+La pantalla de detalle permitirá consultar información completa sobre un libro publicado.
+
+Puede incluir:
+
+Fotografías.
+Título.
+Autor.
+Categoría.
+ISBN, si fue registrado.
+Estado del ejemplar.
+Precio.
+Descripción.
+Nombre del vendedor.
+Fecha de publicación.
+
+Desde esta pantalla se podrá agregar la publicación al carrito.
+
+📝 M03 — Gestión de publicaciones
+
+Cualquier usuario autenticado podrá publicar un libro para vender.
+
+Crear publicación
+
+Para crear una publicación podrán solicitarse:
+
+Título.
+Autor.
+Categoría.
+ISBN opcional.
+Estado del libro.
+Precio.
+Descripción.
+Fotografías.
+
+Cada publicación representa un ejemplar físico específico que pertenece al usuario vendedor.
+
+📷 Fotografías de publicaciones
+
+Cada publicación podrá incluir una o varias fotografías propias del ejemplar.
+
+El usuario podrá:
+
+Tomar fotografías utilizando la cámara.
+Seleccionar fotografías desde la galería.
+Visualizar las imágenes antes de publicar.
+Eliminar una imagen seleccionada.
+
+Las fotografías serán almacenadas utilizando Supabase Storage.
+
+📚 Mis publicaciones
+
+El usuario podrá consultar los libros que ha colocado a la venta.
+
+Desde esta sección podrá:
+
+Visualizar sus publicaciones.
+Editar información.
+Modificar el precio.
+Modificar la descripción.
+Cambiar fotografías.
+Retirar una publicación.
+Consultar su estado.
+Estados de publicación
+
+Una publicación podrá encontrarse en alguno de los siguientes estados:
+
+Activa.
+Vendida.
+Retirada.
+🛒 M04 — Carrito
+
+El carrito permitirá almacenar temporalmente las publicaciones que un usuario desea comprar.
+
+El usuario podrá:
+
+Agregar una publicación.
+Eliminar una publicación.
+Consultar productos seleccionados.
+Consultar precios.
+Consultar el total.
+Continuar al checkout.
+
+Cada publicación corresponde a un ejemplar específico.
+
+Por esta razón, su disponibilidad deberá comprobarse antes de confirmar la operación.
+
+💳 M05 — Checkout
+
+El proceso de checkout permitirá simular la compra.
+
+El flujo será:
+
+CARRITO
    │
-   ├──────────────► DIRECCIONES
+   ▼
+REVISAR PRODUCTOS
    │
-   ├──────────────► PEDIDOS
-   │                    │
-   │                    ▼
-   │              DETALLE_PEDIDO
-   │                    │
-   │                    ▼
-   ├──────────────► LIBROS ◄────────────── FAVORITOS
-   │                    ▲
-   │                    │
-   └──────────────► CARRITO
-```
+   ▼
+SELECCIONAR DIRECCIÓN
+   │
+   ▼
+SELECCIONAR MÉTODO
+DE PAGO SIMULADO
+   │
+   ▼
+REVISAR RESUMEN
+   │
+   ▼
+CONFIRMAR COMPRA
+   │
+   ▼
+CREAR PEDIDO
+💳 Pago simulado
 
-### Entidades principales
+La aplicación no procesará dinero real.
 
-#### 👤 Usuarios
+Los métodos de pago mostrados formarán parte de una simulación académica.
 
-```text
+No se almacenarán:
+
+Números reales de tarjetas.
+CVV reales.
+Credenciales bancarias.
+Información financiera sensible.
+📍 Direcciones y geolocalización
+
+Durante el checkout el usuario podrá seleccionar o registrar una dirección.
+
+La aplicación podrá utilizar Expo Location para obtener la ubicación del dispositivo y facilitar el registro de dicha información.
+
+La geolocalización funcionará únicamente como apoyo dentro del flujo simulado de compra.
+
+📦 M06 — Compras y pedidos
+
+El usuario podrá consultar las compras realizadas desde su cuenta.
+
+Cada pedido podrá mostrar:
+
+Código o número de pedido.
+Libro adquirido.
+Fotografía.
+Precio.
+Fecha.
+Estado del pedido.
+Dirección registrada.
+Estados posibles
+
+Inicialmente se consideran:
+
+Confirmado.
+En proceso.
+Completado.
+Cancelado.
+
+Estos estados podrán ajustarse durante la implementación.
+
+💰 M07 — Ventas
+
+Los usuarios podrán consultar las ventas asociadas a sus publicaciones.
+
+La sección Mis ventas podrá mostrar:
+
+Libro vendido.
+Fotografía.
+Comprador.
+Precio.
+Fecha.
+Estado de la operación.
+
+De esta manera el usuario tendrá secciones separadas para:
+
+Mis publicaciones
+Mis compras
+Mis ventas
+👤 M08 — Perfil
+
+El usuario podrá consultar la información relacionada con su cuenta.
+
+El perfil podrá mostrar:
+
+Nombre.
+Correo electrónico.
+Fotografía de perfil.
+Direcciones.
+Mis publicaciones.
+Mis compras.
+Mis ventas.
+Configuración.
+Cerrar sesión.
+📷 Fotografía de perfil
+
+El usuario podrá modificar su fotografía utilizando:
+
+Cámara.
+Galería.
+
+Las imágenes podrán almacenarse mediante Supabase Storage.
+
+🌙 M09 — Configuración
+
+La aplicación incorporará:
+
+☀️ Modo claro.
+🌙 Modo oscuro.
+
+La preferencia podrá almacenarse localmente utilizando AsyncStorage.
+
+🔔 Notificaciones
+
+Se utilizarán notificaciones locales para informar al usuario sobre determinadas acciones.
+
+Por ejemplo:
+
+Compra confirmada.
+Publicación creada correctamente.
+Cambios importantes asociados a un pedido.
+
+Las notificaciones locales podrán implementarse utilizando Expo Notifications.
+
+🏗️ Arquitectura
+
+La aplicación utilizará una arquitectura cliente-servicio.
+
+                        ┌──────────────────┐
+                        │     USUARIO      │
+                        └────────┬─────────┘
+                                 │
+                                 ▼
+                        ┌──────────────────┐
+                        │   React Native   │
+                        │      + Expo      │
+                        └────────┬─────────┘
+                                 │
+            ┌────────────────────┼────────────────────┐
+            │                    │                    │
+            ▼                    ▼                    ▼
+    ┌──────────────┐     ┌──────────────┐     ┌─────────────────┐
+    │   Supabase   │     │ AsyncStorage │     │  Expo Modules   │
+    │              │     │              │     │                 │
+    │ Auth         │     │ Tema         │     │ Camera          │
+    │ PostgreSQL   │     │ Preferencias │     │ ImagePicker     │
+    │ Storage      │     │              │     │ Location        │
+    └──────┬───────┘     └──────────────┘     │ Notifications   │
+           │                                  └─────────────────┘
+           ▼
+    ┌──────────────────────┐
+    │ Datos persistentes   │
+    │                      │
+    │ Usuarios             │
+    │ Publicaciones        │
+    │ Imágenes             │
+    │ Direcciones          │
+    │ Carrito              │
+    │ Pedidos              │
+    │ Detalles de pedidos  │
+    └──────────────────────┘
+🛠️ Tecnologías utilizadas
+Tecnología	Uso
+⚛️ React Native	Desarrollo de la aplicación móvil
+⚡ Expo	Entorno de desarrollo y ejecución
+☁️ Supabase	Backend as a Service
+🐘 PostgreSQL	Base de datos
+🔐 Supabase Auth	Autenticación
+🗄️ Supabase Storage	Almacenamiento de fotografías
+💾 AsyncStorage	Preferencias locales
+📷 Expo Camera	Captura de fotografías
+🖼️ Expo ImagePicker	Selección de imágenes
+📍 Expo Location	Geolocalización
+🔔 Expo Notifications	Notificaciones locales
+🧭 React Navigation	Navegación
+🗃️ Modelo conceptual de datos
+
+La información será almacenada principalmente mediante Supabase PostgreSQL.
+
+Modelo conceptual inicial:
+
+                     USUARIO
+                        │
+        ┌───────────────┼─────────────────┐
+        │               │                 │
+        ▼               ▼                 ▼
+   DIRECCION       PUBLICACION         PEDIDO
+                       │                  │
+                       ▼                  ▼
+            IMAGEN_PUBLICACION     DETALLE_PEDIDO
+                       ▲                  │
+                       │                  │
+                       └──────────────────┘
+
+                     USUARIO
+                        │
+                        ▼
+                     CARRITO
+                        │
+                        ▼
+                  PUBLICACION
+👤 Usuarios
 usuarios
 ├── id
 ├── nombre
 ├── correo
+├── foto_perfil
 └── auth_id
-```
 
-#### 📍 Direcciones
+Un mismo usuario puede comprar y vender.
 
-```text
+📍 Direcciones
 direcciones
 ├── id
 ├── usuario_id
 ├── direccion
-└── ciudad
-```
+├── ciudad
+├── latitud
+└── longitud
+📝 Publicaciones
 
-#### 📚 Libros
+Cada publicación representa un ejemplar físico que un usuario desea vender.
 
-```text
-libros
+publicaciones
 ├── id
+├── vendedor_id
 ├── titulo
 ├── autor
 ├── categoria
-└── precio
-```
+├── isbn
+├── estado_libro
+├── precio
+├── descripcion
+├── estado_publicacion
+└── fecha_publicacion
 
-#### 🛒 Carrito
+El campo isbn será opcional.
 
-```text
+Estado de publicación
+ACTIVA
+VENDIDA
+RETIRADA
+🖼️ Imágenes de publicación
+imagenes_publicacion
+├── id
+├── publicacion_id
+├── url_imagen
+└── orden
+
+Una publicación podrá tener múltiples imágenes.
+
+🛒 Carrito
 carrito
 ├── id
 ├── usuario_id
-├── libro_id
-└── cantidad
-```
+├── publicacion_id
+└── fecha_agregado
 
-#### ❤️ Favoritos
+Cada registro relaciona a un usuario con una publicación que desea comprar.
 
-```text
-favoritos
-├── id
-├── usuario_id
-└── libro_id
-```
-
-#### 📦 Pedidos
-
-```text
+📦 Pedidos
 pedidos
 ├── id
-├── usuario_id
+├── comprador_id
 ├── direccion_id
 ├── fecha
 ├── estado
 └── total
-```
-
-#### 📄 Detalle del pedido
-
-```text
+📄 Detalle de pedido
 detalle_pedido
 ├── id
 ├── pedido_id
-├── libro_id
-├── cantidad
-└── precio_unitario
-```
+├── publicacion_id
+└── precio
 
-El modelo conceptual documentado contempla usuarios, direcciones, libros, carrito, favoritos, pedidos y detalle de pedidos.
+El vendedor de cada producto podrá obtenerse mediante la publicación correspondiente.
 
----
+De esta forma, las ventas podrán derivarse de los detalles de pedidos confirmados sin necesidad de duplicar información innecesariamente.
 
-# 📱 Funcionalidades de la aplicación
-
-El flujo principal de la aplicación puede representarse de la siguiente manera:
-
-```text
-                    ┌──────────────┐
-                    │   Inicio     │
-                    └──────┬───────┘
-                           │
-                           ▼
-                  ┌─────────────────┐
-                  │ Registro/Login  │
-                  └────────┬────────┘
-                           │
-                           ▼
-                  ┌─────────────────┐
-                  │   Marketplace   │
-                  └────────┬────────┘
-                           │
-             ┌─────────────┼──────────────┐
-             │             │              │
-             ▼             ▼              ▼
-        📚 Catálogo    ❤️ Favoritos    👤 Perfil
-             │                            │
-             ▼                            ▼
-        🔎 Buscar                    📦 Pedidos
+📱 Flujo general
+                         ABRIR APP
+                             │
+                             ▼
+                     REGISTRO / LOGIN
+                             │
+                             ▼
+                    USUARIO AUTENTICADO
+                             │
+                             ▼
+                        MARKETPLACE
+                             │
+             ┌───────────────┴───────────────┐
+             │                               │
+             ▼                               ▼
+          COMPRAR                          VENDER
+             │                               │
+             ▼                               ▼
+      Buscar / Filtrar                Crear publicación
+             │                               │
+             ▼                        Subir fotografías
+      Ver publicación                       │
+             │                               ▼
+             ▼                            Publicar
+          Carrito                            │
+             │                               ▼
+             ▼                       Mis publicaciones
+          Checkout                           │
+             │                               ▼
+             ▼                           Mis ventas
+          Pedido
              │
              ▼
-       📖 Detalle del libro
-             │
-             ▼
-        🛒 Agregar al carrito
-             │
-             ▼
-          💳 Checkout
-             │
-             ▼
-       📦 Confirmar pedido
-             │
-             ▼
-       🔔 Notificación
-```
-
----
-
-# 📂 Funcionalidades previstas
-
-Actualmente, el diseño funcional contempla los siguientes requerimientos:
-
-| ID   | Funcionalidad                   |
-| ---- | ------------------------------- |
-| RF01 | Registro de usuarios            |
-| RF02 | Inicio de sesión                |
-| RF03 | Catálogo de libros              |
-| RF04 | Búsqueda por título o autor     |
-| RF05 | Filtros por categoría y formato |
-| RF06 | Detalle del libro               |
-| RF07 | Carrito de compras              |
-| RF08 | Libros favoritos                |
-| RF09 | Dirección mediante GPS          |
-| RF10 | Checkout y pago simulado        |
-| RF11 | Notificación local              |
-| RF12 | Historial de pedidos            |
-| RF13 | Actualización de foto de perfil |
-| RF14 | Modo claro / oscuro             |
-
-Estos requerimientos forman parte de la especificación funcional del proyecto.
-
----
-
-# 📋 Requerimientos no funcionales
-
-El proyecto contempla los siguientes requisitos:
-
-* **Usabilidad:** interfaz sencilla e intuitiva.
-* **Rendimiento:** las pantallas principales deben cargar en un máximo de 3 segundos bajo condiciones normales de red.
-* **Disponibilidad:** información persistente en Supabase.
-* **Compatibilidad:** dispositivos Android e iOS mediante Expo.
-* **Seguridad:** gestión de credenciales mediante Supabase Auth.
-* **Escalabilidad:** posibilidad de incorporar nuevas categorías, libros y funcionalidades.
-* **Mantenibilidad:** utilización de componentes y módulos reutilizables.
-
----
-
-# 🚀 Instalación
-
-> ⚠️ Los comandos exactos de instalación y los scripts disponibles dependen de la estructura final del proyecto y de su `package.json`.
-
-### 1. Clonar el repositorio
-
-```bash
-git clone <URL_DEL_REPOSITORIO>
-```
-
-### 2. Entrar al proyecto
-
-```bash
-cd <NOMBRE_DEL_PROYECTO>
-```
-
-### 3. Instalar dependencias
-
-```bash
-npm install
-```
-
-### 4. Configurar las variables de entorno
-
-Crear el archivo:
-
-```text
-.env
-```
-
-y agregar las credenciales correspondientes a los servicios utilizados por el proyecto.
-
-Por ejemplo:
-
-```env
-EXPO_PUBLIC_SUPABASE_URL=tu_url_de_supabase
-EXPO_PUBLIC_SUPABASE_ANON_KEY=tu_clave_de_supabase
-```
-
-> 🔒 **Importante:** nunca subir claves privadas, contraseñas o credenciales sensibles al repositorio.
-
-### 5. Ejecutar la aplicación
-
-Si el proyecto utiliza Expo:
-
-```bash
-npx expo start
-```
-
-Desde Expo se puede ejecutar la aplicación en un dispositivo físico o emulador compatible.
-
----
-
-# 🔐 Configuración de Supabase
-
-La aplicación utiliza Supabase como **Backend as a Service (BaaS)** para:
-
-* Autenticación.
-* Base de datos PostgreSQL.
-* Persistencia de usuarios.
-* Pedidos.
-* Direcciones.
-* Favoritos.
-* Almacenamiento de archivos.
-
-La documentación del proyecto especifica Supabase como backend y PostgreSQL como sistema de base de datos.
-
----
-
-# 📖 Google Books API
-
-El catálogo de libros se obtiene mediante la **Google Books API**.
-
-Su utilización permite consultar información de libros y utilizarla dentro del marketplace para facilitar:
-
-```text
-Google Books API
-       │
-       ▼
-   Catálogo
-       │
-       ├── Título
-       ├── Autor
-       ├── Categoría
-       ├── Descripción
-       ├── Formato
-       └── Información adicional
-```
-
-La integración con Google Books API forma parte del alcance definido para el proyecto.
-
----
-
-# 📱 Pantallas principales
-
-El proyecto contempla las siguientes interfaces:
-
-* 🚀 Onboarding.
-* 🔐 Inicio de sesión.
-* 📝 Registro.
-* 🔑 Recuperación de contraseña.
-* 🏠 Inicio / Marketplace.
-* 📚 Categorías.
-* 🛒 Carrito.
-* 💳 Pago / Checkout.
-* 📦 Estado de orden.
-* 🔔 Notificaciones.
-* 👤 Perfil.
-* ❤️ Favoritos.
-* 📜 Historial de pedidos.
-
-Estas pantallas corresponden a los prototipos de interfaz incluidos en la documentación del proyecto.
-
----
-
-# 🧪 Pruebas
-
-El proyecto contempla pruebas funcionales sobre los principales flujos de la aplicación:
-
-### 🔐 Autenticación
-
-* Registro.
-* Inicio de sesión.
-* Gestión de sesión.
-
-### 🔎 Catálogo
-
-* Búsqueda.
-* Filtros.
-* Visualización de detalles.
-
-### 🛒 Compra
-
-* Agregar productos.
-* Eliminar productos.
-* Checkout.
-* Confirmación del pedido.
-
-### 👤 Perfil
-
-* Actualización de fotografía.
-* Gestión de favoritos.
-* Consulta de historial.
-
-La documentación indica que los casos de prueba y sus evidencias deben incorporarse conforme avance el desarrollo.
-
----
-
-# 🎯 Alcance
-
-## ✅ Incluido
-
-* Registro e inicio de sesión.
-* Catálogo de libros.
-* Búsqueda y filtros.
-* Detalle de productos.
-* Carrito persistente.
-* Checkout.
-* Pago simulado.
-* Confirmación de pedidos.
-* Notificaciones locales.
-* Historial de pedidos.
-* Favoritos.
-* Cámara.
-* Geolocalización.
-* Modo claro y oscuro.
-
-## 🚧 Trabajo futuro
-
-Las siguientes funcionalidades quedan fuera del alcance actual:
-
-* 💳 Procesamiento real de pagos.
-* 🏪 Panel completo para vendedores/proveedores.
-* 🔔 Notificaciones push mediante servicios externos.
-* 🖥️ Desarrollo de un backend completamente desde cero.
-
-El documento especifica que Supabase se utiliza como backend como servicio en lugar de desarrollar un backend propio desde cero.
-
----
-
-# 📈 Posibles mejoras futuras
-
-Entre las posibles ampliaciones del proyecto se podrían considerar:
-
-* 💳 Integración con una pasarela de pagos real.
-* 🏪 Sistema de vendedores.
-* ⭐ Sistema de reseñas y valoraciones.
-* 📊 Panel administrativo.
-* 📦 Seguimiento avanzado de envíos.
-* 🔔 Notificaciones push.
-* 🎁 Sistema de promociones y descuentos.
-* 🔎 Búsqueda avanzada.
-* 📚 Recomendaciones personalizadas.
-* 📈 Estadísticas de ventas.
-
-> Estas funcionalidades son propuestas de evolución y no forman parte del alcance actual documentado.
-
----
-
-# 👨‍💻 Estructura sugerida del proyecto
-
-La documentación indica que la organización del código se completará conforme avance el desarrollo.
-
-Una estructura organizada podría seguir un esquema como:
-
-```text
+        Mis compras
+📂 Requerimientos funcionales
+🔐 Autenticación
+ID	Requerimiento
+RF01	El sistema permitirá registrar un nuevo usuario.
+RF02	El sistema permitirá iniciar sesión mediante correo electrónico y contraseña.
+RF03	El sistema permitirá recuperar la contraseña.
+RF04	El sistema mantendrá la sesión del usuario autenticado.
+RF05	El sistema permitirá cerrar sesión.
+🏠 Marketplace
+ID	Requerimiento
+RF06	El sistema permitirá visualizar publicaciones activas.
+RF07	El sistema permitirá buscar publicaciones por título.
+RF08	El sistema permitirá buscar publicaciones por autor.
+RF09	El sistema permitirá aplicar filtros a las publicaciones.
+RF10	El sistema permitirá consultar el detalle de una publicación.
+📝 Publicaciones
+ID	Requerimiento
+RF11	El usuario podrá crear una publicación para vender un libro.
+RF12	El usuario podrá registrar la información del libro.
+RF13	El usuario podrá agregar fotografías propias a una publicación.
+RF14	El usuario podrá utilizar la cámara para tomar fotografías del libro.
+RF15	El usuario podrá seleccionar imágenes desde la galería.
+RF16	El usuario podrá editar una publicación propia.
+RF17	El usuario podrá retirar una publicación propia.
+RF18	El usuario podrá consultar sus publicaciones.
+🛒 Carrito
+ID	Requerimiento
+RF19	El usuario podrá agregar una publicación al carrito.
+RF20	El usuario podrá eliminar una publicación del carrito.
+RF21	El usuario podrá consultar el contenido y total del carrito.
+💳 Checkout
+ID	Requerimiento
+RF22	El usuario podrá registrar una dirección de entrega.
+RF23	El usuario podrá seleccionar una dirección registrada.
+RF24	El usuario podrá utilizar geolocalización para facilitar el registro de la dirección.
+RF25	El usuario podrá seleccionar un método de pago simulado.
+RF26	El usuario podrá revisar el resumen de la compra.
+RF27	El usuario podrá confirmar una compra.
+📦 Compras
+ID	Requerimiento
+RF28	El usuario podrá consultar sus compras realizadas.
+RF29	El usuario podrá consultar el detalle de un pedido.
+RF30	El usuario podrá consultar el estado de un pedido.
+💰 Ventas
+ID	Requerimiento
+RF31	El usuario podrá consultar las ventas de sus publicaciones.
+RF32	El usuario podrá consultar el detalle de una venta.
+👤 Perfil
+ID	Requerimiento
+RF33	El usuario podrá consultar su perfil.
+RF34	El usuario podrá modificar sus datos personales.
+RF35	El usuario podrá actualizar su fotografía de perfil.
+⚙️ Configuración
+ID	Requerimiento
+RF36	El usuario podrá alternar entre modo claro y oscuro.
+RF37	El sistema almacenará localmente la preferencia del tema.
+RF38	El sistema podrá generar notificaciones locales relacionadas con acciones importantes.
+📋 Requerimientos no funcionales
+RNF01 — Usabilidad
+
+La aplicación deberá presentar una interfaz sencilla, clara, consistente e intuitiva.
+
+RNF02 — Rendimiento
+
+Las pantallas principales deberán cargar en un máximo aproximado de 3 segundos bajo condiciones normales de funcionamiento y conexión.
+
+RNF03 — Compatibilidad
+
+La aplicación deberá ser compatible con dispositivos Android e iOS soportados por Expo.
+
+RNF04 — Seguridad
+
+Las credenciales de los usuarios serán gestionadas mediante Supabase Auth.
+
+La aplicación no almacenará directamente contraseñas de usuario.
+
+RNF05 — Persistencia
+
+Los datos principales deberán mantenerse mediante Supabase PostgreSQL.
+
+RNF06 — Almacenamiento
+
+Las fotografías deberán almacenarse utilizando Supabase Storage.
+
+RNF07 — Mantenibilidad
+
+La aplicación deberá utilizar componentes reutilizables y una estructura de proyecto modular.
+
+RNF08 — Escalabilidad
+
+La arquitectura deberá permitir incorporar nuevas funcionalidades en futuras versiones.
+
+RNF09 — Privacidad
+
+La aplicación deberá solicitar permisos antes de acceder a funcionalidades como cámara, galería o ubicación.
+
+📱 Pantallas previstas
+🔐 Autenticación
+Inicio de sesión.
+Registro.
+Recuperación de contraseña.
+🏠 Marketplace
+Inicio / Marketplace.
+Búsqueda.
+Filtros.
+Detalle de publicación.
+📝 Venta
+Crear publicación.
+Agregar fotografías.
+Mis publicaciones.
+Editar publicación.
+Mis ventas.
+Detalle de venta.
+🛒 Compra
+Carrito.
+Dirección.
+Checkout.
+Confirmación de compra.
+Mis compras.
+Detalle del pedido.
+👤 Usuario
+Perfil.
+Editar perfil.
+Configuración.
+Notificaciones.
+🧪 Pruebas previstas
+🔐 Autenticación
+Registro correcto.
+Validación de formulario.
+Inicio de sesión.
+Credenciales incorrectas.
+Recuperación de contraseña.
+Cierre de sesión.
+🏠 Marketplace
+Visualización de publicaciones.
+Búsqueda por título.
+Búsqueda por autor.
+Aplicación de filtros.
+Consulta del detalle.
+📝 Publicaciones
+Crear publicación.
+Validar formulario.
+Agregar fotografías.
+Utilizar cámara.
+Utilizar galería.
+Editar publicación.
+Retirar publicación.
+Consultar publicaciones propias.
+🛒 Carrito
+Agregar publicación.
+Eliminar publicación.
+Visualizar total.
+💳 Checkout
+Registrar dirección.
+Obtener ubicación.
+Seleccionar dirección.
+Seleccionar pago simulado.
+Confirmar compra.
+📦 Compras y ventas
+Consultar compras.
+Consultar pedidos.
+Consultar ventas.
+Visualizar detalles.
+👤 Perfil
+Modificar información.
+Actualizar fotografía.
+Cambiar tema.
+🎯 Alcance
+✅ Incluido
+Registro obligatorio.
+Inicio de sesión obligatorio.
+Recuperación de contraseña.
+Marketplace de libros físicos.
+Compra y venta entre usuarios.
+Un único tipo de cuenta.
+Publicaciones creadas por usuarios.
+Fotografías propias de los ejemplares.
+Cámara.
+Galería.
+Búsqueda.
+Filtros.
+Detalle de publicaciones.
+Carrito.
+Checkout.
+Pago simulado.
+Direcciones.
+Geolocalización.
+Pedidos.
+Historial de compras.
+Historial de ventas.
+Perfil.
+Notificaciones locales.
+Modo claro y oscuro.
+Persistencia mediante Supabase.
+🚫 Fuera del alcance
+
+Para mantener el proyecto viable dentro del curso quedan fuera del alcance actual:
+
+Google Books API.
+Catálogos externos de libros.
+Sistema de favoritos.
+Libros digitales.
+Pagos reales.
+Datos bancarios reales.
+Billetera virtual.
+Comisiones.
+Chat comprador-vendedor.
+Sistema de subastas.
+Sistema de ofertas.
+Sistema de reputación.
+Valoraciones de vendedores.
+Seguimiento logístico real.
+Empresas de transporte.
+Panel administrativo complejo.
+Backend propio desarrollado desde cero.
+📈 Posibles mejoras futuras
+
+En futuras versiones podrían incorporarse:
+
+Chat entre comprador y vendedor.
+Calificaciones.
+Sistema de reputación.
+Reseñas.
+Ofertas entre usuarios.
+Promociones.
+Panel administrativo.
+Estadísticas de ventas.
+Recomendaciones de libros.
+Procesamiento de pagos reales.
+Seguimiento avanzado de envíos.
+
+Estas funcionalidades no forman parte del alcance actual.
+
+👨‍💻 Estructura sugerida del proyecto
 marketplace-libros/
 │
-├── 📁 assets/
+├── assets/
 │   ├── images/
 │   └── icons/
 │
-├── 📁 components/
-│   ├── BookCard/
+├── components/
+│   ├── PublicationCard/
 │   ├── SearchBar/
+│   ├── FilterButton/
+│   ├── Input/
+│   ├── Button/
 │   └── ...
 │
-├── 📁 screens/
-│   ├── Login/
-│   ├── Register/
-│   ├── Home/
-│   ├── BookDetail/
+├── screens/
+│   │
+│   ├── Auth/
+│   │   ├── LoginScreen.js
+│   │   ├── RegisterScreen.js
+│   │   └── ForgotPasswordScreen.js
+│   │
+│   ├── Marketplace/
+│   │   ├── HomeScreen.js
+│   │   ├── SearchScreen.js
+│   │   └── PublicationDetailScreen.js
+│   │
+│   ├── Publications/
+│   │   ├── CreatePublicationScreen.js
+│   │   ├── MyPublicationsScreen.js
+│   │   └── EditPublicationScreen.js
+│   │
 │   ├── Cart/
+│   │   └── CartScreen.js
+│   │
 │   ├── Checkout/
-│   ├── Orders/
-│   └── Profile/
+│   │   ├── AddressScreen.js
+│   │   ├── CheckoutScreen.js
+│   │   └── PurchaseConfirmationScreen.js
+│   │
+│   ├── Purchases/
+│   │   ├── PurchasesScreen.js
+│   │   └── OrderDetailScreen.js
+│   │
+│   ├── Sales/
+│   │   ├── SalesScreen.js
+│   │   └── SaleDetailScreen.js
+│   │
+│   ├── Profile/
+│   │   ├── ProfileScreen.js
+│   │   └── EditProfileScreen.js
+│   │
+│   └── Settings/
+│       └── SettingsScreen.js
 │
-├── 📁 services/
-│   ├── supabase/
-│   └── googleBooks/
+├── navigation/
 │
-├── 📁 navigation/
+├── services/
+│   └── supabase/
 │
-├── 📁 hooks/
+├── hooks/
 │
-├── 📁 utils/
+├── utils/
 │
-├── 📄 App.js
-├── 📄 package.json
-├── 📄 app.json
-├── 📄 .env
-└── 📄 README.md
-```
+├── App.js
+├── index.js
+├── app.json
+├── package.json
+├── .env
+└── README.md
 
-> Esta estructura es una **propuesta de organización** para el código y debe ajustarse a la estructura real del repositorio.
+Esta estructura es una propuesta inicial y podrá ajustarse conforme avance el desarrollo.
 
----
+🚀 Instalación
+1. Clonar el repositorio
+git clone <URL_DEL_REPOSITORIO>
+2. Entrar al proyecto
+cd MarketplaceLibros
+3. Instalar dependencias
+npm install
+4. Configurar variables de entorno
 
-# 👥 Equipo
+Crear el archivo:
 
-**Proyecto:** Marketplace de Libros
-**Curso:** Desarrollo de Aplicaciones Móviles (100000ST91)
-**Grupo:** 5
-**Año:** 2026
+.env
 
-### Integrantes
+Agregar:
 
-* 👨‍💻 Integrante 1
-* 👨‍💻 Integrante 2
-* 👨‍💻 Integrante 3
-* 👨‍💻 Integrante 4
+EXPO_PUBLIC_SUPABASE_URL=tu_url_de_supabase
+EXPO_PUBLIC_SUPABASE_ANON_KEY=tu_clave_publica
 
-> Reemplazar los nombres anteriores por los integrantes reales del grupo.
+⚠️ No se deberán almacenar contraseñas, claves privadas o información sensible dentro del repositorio.
 
-### Docente
+5. Ejecutar la aplicación
+npx expo start
+Ejecución mediante emulador Android
+Abrir Android Studio.
+Abrir Device Manager.
+Encender el dispositivo virtual.
+Esperar hasta que Android termine de iniciar.
+Ejecutar:
+npx expo start
+Presionar:
+a
+🔐 Supabase
 
-**Mg. Miguel Angel Huerta Rojas**
+Supabase será utilizado como Backend as a Service (BaaS).
 
----
+Supabase Auth
 
-# 📚 Referencias
+Se utilizará para:
 
-El proyecto utiliza como referencia documentación y recursos relacionados con:
+Registro.
+Inicio de sesión.
+Gestión de credenciales.
+Persistencia de sesión.
+Supabase PostgreSQL
 
-* React Native.
-* Expo.
-* Supabase.
-* PostgreSQL.
-* Google Books API.
-* Desarrollo de aplicaciones móviles.
+Se utilizará para almacenar:
 
-La documentación académica también incluye referencias bibliográficas de David Robledo Fernández sobre desarrollo de aplicaciones Android.
+Usuarios.
+Direcciones.
+Publicaciones.
+Imágenes asociadas.
+Carrito.
+Pedidos.
+Detalles de pedidos.
+Supabase Storage
 
----
+Se utilizará para almacenar:
 
-# 📄 Estado del proyecto
+Fotografías de publicaciones.
+Fotografías de perfil.
+🔒 Seguridad
 
-```text
+La aplicación utilizará Supabase Auth para la autenticación.
+
+No se almacenarán directamente las contraseñas de los usuarios dentro de las tablas de la aplicación.
+
+Las variables de configuración deberán mantenerse mediante variables de entorno.
+
+El archivo .env no deberá contener claves privadas expuestas públicamente.
+
+📄 Estado actual del proyecto
+
 🟡 EN DESARROLLO
-```
 
-El proyecto se encuentra en proceso de implementación. Algunas secciones técnicas, pruebas, conclusiones y recomendaciones deberán completarse conforme avance el desarrollo.
+Actualmente se ha implementado un primer formulario funcional de registro utilizando React Native.
 
----
+La implementación incorpora:
 
-# ⭐ Tecnologías
+useState.
+TextInput.
+TouchableOpacity.
+Button.
+Manejo de eventos.
+Validaciones de formulario.
 
-<p align="center">
+Las demás funcionalidades se implementarán progresivamente conforme avance el curso.
 
-<img src="https://img.shields.io/badge/React%20Native-2026-blue?logo=react" />
-<img src="https://img.shields.io/badge/Expo-Framework-black?logo=expo" />
-<img src="https://img.shields.io/badge/Supabase-Backend-green?logo=supabase" />
-<img src="https://img.shields.io/badge/PostgreSQL-Database-blue?logo=postgresql" />
-<img src="https://img.shields.io/badge/Google%20Books-API-red?logo=google" />
+🗺️ Desarrollo progresivo
 
-</p>
+El proyecto será desarrollado de forma incremental.
 
----
+Etapa 1
+Interfaces básicas.
+Formularios.
+Eventos.
+Estados.
+Validaciones.
+Navegación.
+Etapa 2
+Hooks.
+Persistencia de información.
+Supabase.
+Marketplace.
+Publicaciones.
+Carrito.
+Tema visual.
+Etapa 3
+Cámara.
+Galería.
+Geolocalización.
+Permisos.
+Notificaciones.
+Etapa 4
+Integración.
+Pruebas.
+Optimización.
+Generación del APK.
+Presentación final.
+👥 Equipo
 
-<p align="center">
+Proyecto: Marketplace de Libros
+Curso: Desarrollo de Aplicaciones Móviles
+Código: 100000ST91
+Grupo: 5
+Año: 2026
 
-### 📚 Marketplace de Libros
+Integrantes
+👨‍💻 Integrante 1
+👨‍💻 Integrante 2
+👨‍💻 Integrante 3
+👨‍💻 Integrante 4
+Docente
 
-<strong>Busca. Compara. Compra.</strong>
+Mg. Miguel Angel Huerta Rojas
 
-Desarrollado como proyecto académico para el curso de <strong>Desarrollo de Aplicaciones Móviles</strong>.
+📚 Marketplace de Libros
+Compra. Vende. Encuentra tu próxima lectura.
 
-</p>
+Proyecto académico desarrollado para el curso de Desarrollo de Aplicaciones Móviles.
 
-<p align="center">
-  © 2026 · Grupo 5
-</p>
+© 2026 · Grupo 5
