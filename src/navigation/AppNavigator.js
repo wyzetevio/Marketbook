@@ -12,8 +12,15 @@ import { SplashView } from '../components';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import PerfilScreen from '../screens/perfil/PerfilScreen';
+import MiCuentaScreen from '../screens/perfil/MiCuentaScreen';
 // Placeholders temporales: Bloque B y C los reemplazan por sus pantallas reales (ver src/screens/placeholders).
-import { CarritoPlaceholder, ExplorarPlaceholder, MisLibrosPlaceholder } from '../screens/placeholders';
+import {
+  CarritoPlaceholder,
+  ExplorarPlaceholder,
+  MisComprasPlaceholder,
+  MisLibrosPlaceholder,
+  MisVentasPlaceholder,
+} from '../screens/placeholders';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -89,6 +96,11 @@ export default function AppNavigator() {
               {session ? (
                 <>
                   <Stack.Screen name="Principal" component={TabsPrincipales} />
+                  {/* Bloque A: Perfil → "Mi cuenta" (editar nombre) */}
+                  <Stack.Screen name="MiCuenta" component={MiCuentaScreen} />
+                  {/* Bloque C (Jesús): reemplazar los placeholders por Mis compras / Mis ventas (se abren desde Perfil) */}
+                  <Stack.Screen name="MisCompras" component={MisComprasPlaceholder} />
+                  <Stack.Screen name="MisVentas" component={MisVentasPlaceholder} />
                   {/*
                     Bloque B y C: registrar aquí las pantallas que se abren ENCIMA de las tabs
                     (sin tab bar), por ejemplo:
