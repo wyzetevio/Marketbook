@@ -1,49 +1,45 @@
-// Paletas de color de Marketbook. Las pantallas NO usan estos objetos directo:
-// leen `t.colors` desde useAppTheme() / useEstilos() para respetar el modo oscuro.
-// Ambas paletas tienen exactamente las mismas claves.
+// Paletas de color de Marketbook (basadas en el diseño de Figma; el modo oscuro es derivado).
+// Las pantallas NO usan estos objetos directo: leen `t.colors` desde useAppTheme() / useEstilos()
+// para respetar el modo oscuro. Ambas paletas tienen exactamente las mismas claves.
 
 export const claro = {
-  fondo: '#F7F4EF',              // fondo general (papel)
-  superficie: '#FFFFFF',         // tarjetas, inputs, tab bar
-  superficieAlt: '#EFEAE2',      // chips, fondos secundarios
-  texto: '#1F1B16',
-  textoSecundario: '#6B635A',
-  textoTenue: '#9A9188',         // placeholders, ayudas
-  borde: '#E2DBD0',
-  primario: '#2F5D50',           // verde tinta: botones y elementos activos
-  primarioPresionado: '#244A40',
-  primarioSuave: '#DCE9E4',
+  fondo: '#FFFFFF',              // fondo de pantallas
+  superficie: '#FFFFFF',         // tarjetas, tab bar, modales
+  superficieAlt: '#F5F5F7',      // fondo de inputs, chips, botón secundario
+  texto: '#1A1A1A',
+  textoSecundario: '#6E6E73',
+  textoTenue: '#8E8E93',         // placeholders, ayudas, iconos inactivos
+  borde: '#E8E8EB',
+  primario: '#1E1E1E',           // botones principales (negro)
   textoSobrePrimario: '#FFFFFF',
-  acento: '#A35A1F',             // precios y detalles
-  peligro: '#B3261E',
-  peligroSuave: '#F9DEDC',
-  exito: '#256B42',
-  exitoSuave: '#DDF0E3',
-  aviso: '#8A5A00',
-  avisoSuave: '#FBEFD5',
-  overlay: 'rgba(0, 0, 0, 0.4)',
-  sombra: '#000000',
+  acento: '#5B3DF5',             // links, precios, tab activa (morado)
+  acentoSuave: '#EEEAFF',
+  peligro: '#D93036',            // "Cerrar sesión", errores
+  peligroSuave: '#FDECEC',
+  exito: '#17703F',
+  exitoSuave: '#E3F5EA',
+  aviso: '#A35200',
+  avisoSuave: '#FFF0DE',
+  overlay: 'rgba(0, 0, 0, 0.4)', // fondo detrás de modales
 };
 
 export const oscuro = {
-  fondo: '#14120F',
-  superficie: '#1E1B17',
-  superficieAlt: '#29251F',
-  texto: '#F2EDE6',
-  textoSecundario: '#B5ACA1',
-  textoTenue: '#857D73',
-  borde: '#3A342C',
-  primario: '#6FB8A0',
-  primarioPresionado: '#5AA38B',
-  primarioSuave: '#1F3530',
-  textoSobrePrimario: '#0E1A16',
-  acento: '#E39A5C',
-  peligro: '#F2B8B5',
-  peligroSuave: '#3D1F1D',
-  exito: '#7FD1A0',
-  exitoSuave: '#1C3324',
-  aviso: '#E8C36A',
-  avisoSuave: '#3A2F14',
+  fondo: '#121212',
+  superficie: '#1C1C1E',
+  superficieAlt: '#2C2C2E',
+  texto: '#F5F5F7',
+  textoSecundario: '#AEAEB2',
+  textoTenue: '#8E8E93',
+  borde: '#38383A',
+  primario: '#F5F5F7',           // en oscuro los botones principales son blancos
+  textoSobrePrimario: '#121212',
+  acento: '#A493FF',
+  acentoSuave: '#2B2550',
+  peligro: '#FF6B6B',
+  peligroSuave: '#3A1D1F',
+  exito: '#4CC38A',
+  exitoSuave: '#16301F',
+  aviso: '#F5A524',
+  avisoSuave: '#3A2A12',
   overlay: 'rgba(0, 0, 0, 0.6)',
-  sombra: '#000000',
 };

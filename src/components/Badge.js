@@ -4,10 +4,10 @@ import { useAppTheme, useEstilos } from '../theme';
 
 /**
  * Etiqueta pequeña de estado o categoría.
- *   <Badge texto="Novela" />
- *   <Badge texto="vendida" tono="aviso" />
+ *   <Badge texto="Como nuevo" tono="acento" />
+ *   <Badge texto="Entregado" tono="exito" />
  *
- * tono: 'neutro' (default) | 'primario' | 'exito' | 'aviso' | 'peligro'
+ * tono: 'neutro' (default) | 'acento' (morado) | 'exito' (verde) | 'aviso' (naranja) | 'peligro' (rojo)
  */
 export default function Badge({ texto, tono = 'neutro' }) {
   const t = useAppTheme();
@@ -22,7 +22,7 @@ export default function Badge({ texto, tono = 'neutro' }) {
 
 function coloresDe(c, tono) {
   switch (tono) {
-    case 'primario': return { fondo: c.primarioSuave, color: c.primario };
+    case 'acento': return { fondo: c.acentoSuave, color: c.acento };
     case 'exito': return { fondo: c.exitoSuave, color: c.exito };
     case 'aviso': return { fondo: c.avisoSuave, color: c.aviso };
     case 'peligro': return { fondo: c.peligroSuave, color: c.peligro };
@@ -35,7 +35,7 @@ const crearEstilos = (t) => ({
     alignSelf: 'flex-start',
     paddingHorizontal: t.spacing.sm,
     paddingVertical: 2,
-    borderRadius: t.radius.pill,
+    borderRadius: t.radius.sm - 4,
   },
-  texto: { ...t.typography.pequeno, fontWeight: '600' },
+  texto: { ...t.typography.pequeno, fontSize: 11, fontWeight: '600' },
 });

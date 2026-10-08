@@ -1,26 +1,27 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { useEstilos } from '../theme';
+import { Ionicons } from '@expo/vector-icons';
+import { useAppTheme, useEstilos } from '../theme';
 import Button from './Button';
 
 /**
- * Estado vacío (lista sin resultados, carrito vacío, etc.).
- *   <EmptyState icono="🛒" titulo="Tu carrito está vacío" mensaje="Explora libros y agrégalos aquí." />
- *   <FlatList ... ListEmptyComponent={<EmptyState titulo="Sin resultados" textoAccion="Limpiar filtros" onAccion={limpiar} />} />
+ * Estado vacío con icono grande gris (como "Mi carrito" vacío en Figma).
+ *   <EmptyState icono="cart" titulo="No hay productos." />
+ *   <FlatList ... ListEmptyComponent={<EmptyState icono="search" titulo="Sin resultados"
+ *       mensaje="Prueba con otra búsqueda." textoAccion="Limpiar filtros" onAccion={limpiar} />} />
  *
- * icono: emoji (default 📚) · titulo · mensaje (opcional)
+ * icono: nombre de Ionicons (default 'book') · titulo · mensaje (opcional)
  * textoAccion + onAccion: botón opcional
  */
-export default function EmptyState({ icono = '📚', titulo, mensaje, textoAccion, onAccion }) {
+export default function EmptyState({ icono = 'book', titulo, mensaje, textoAccion, onAccion }) {
+  const t = useAppTheme();
   const styles = useEstilos(crearEstilos);
   return (
     <View style={styles.contenedor}>
-      <Text style={styles.icono}>{icono}</Text>
+      <Ionicons name={icono} size={96} color={t.colors.borde} />
       {titulo ? <Text style={styles.titulo}>{titulo}</Text> : null}
       {mensaje ? <Text style={styles.mensaje}>{mensaje}</Text> : null}
-      {textoAccion && onAccion ? (
-        <Button titulo={textoAccion} onPress={onAccion} variante="secundario" estilo={styles.boton} />
-      ) : null}
+      {textoAccion && onAccion ? <Button titulo={textoAccion} onPress={onAccion} estilo={styles.boton} /> : null}
     </View>
   );
 }
@@ -34,8 +35,7 @@ const crearEstilos = (t) => ({
     paddingVertical: t.spacing.xxl,
     paddingHorizontal: t.spacing.lg,
   },
-  icono: { fontSize: 48, marginBottom: t.spacing.sm },
-  titulo: { ...t.typography.subtitulo, color: t.colors.texto, textAlign: 'center' },
+  titulo: { ...t.typography.etiqueta, fontSize: 15, color: t.colors.texto, textAlign: 'center', marginTop: t.spacing.md },
   mensaje: { ...t.typography.cuerpo, color: t.colors.textoSecundario, textAlign: 'center', marginTop: t.spacing.xs },
-  boton: { marginTop: t.spacing.lg },
+  boton: { marginTop: t.spacing.lg, minWidth: 180 },
 });

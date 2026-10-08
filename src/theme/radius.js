@@ -1,7 +1,7 @@
 // Radios de borde.
 export const radius = {
-  sm: 6,
-  md: 10,
-  lg: 16,
-  pill: 999, // botones redondeados y chips
+  sm: 8,     // inputs
+  md: 12,    // tarjetas
+  lg: 20,    // modales inferiores
+  pill: 999, // botones y chips
 };

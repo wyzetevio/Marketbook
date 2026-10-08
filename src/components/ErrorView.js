@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { useEstilos } from '../theme';
+import { Ionicons } from '@expo/vector-icons';
+import { useAppTheme, useEstilos } from '../theme';
 import Button from './Button';
 
 /**
@@ -12,10 +13,11 @@ import Button from './Button';
  * titulo / textoBoton: opcionales
  */
 export default function ErrorView({ mensaje, onReintentar, titulo = 'Algo salió mal', textoBoton = 'Reintentar' }) {
+  const t = useAppTheme();
   const styles = useEstilos(crearEstilos);
   return (
     <View style={styles.contenedor} accessibilityRole="alert">
-      <Text style={styles.icono}>⚠️</Text>
+      <Ionicons name="cloud-offline-outline" size={72} color={t.colors.borde} />
       <Text style={styles.titulo}>{titulo}</Text>
       {mensaje ? <Text style={styles.mensaje}>{mensaje}</Text> : null}
       {onReintentar ? <Button titulo={textoBoton} onPress={onReintentar} estilo={styles.boton} /> : null}
@@ -31,8 +33,7 @@ const crearEstilos = (t) => ({
     padding: t.spacing.lg,
     backgroundColor: t.colors.fondo,
   },
-  icono: { fontSize: 40, marginBottom: t.spacing.sm },
-  titulo: { ...t.typography.subtitulo, color: t.colors.texto, textAlign: 'center' },
-  mensaje: { ...t.typography.cuerpo, color: t.colors.peligro, textAlign: 'center', marginTop: t.spacing.sm },
-  boton: { marginTop: t.spacing.lg, minWidth: 160 },
+  titulo: { ...t.typography.subtitulo, color: t.colors.texto, textAlign: 'center', marginTop: t.spacing.md },
+  mensaje: { ...t.typography.cuerpo, color: t.colors.textoSecundario, textAlign: 'center', marginTop: t.spacing.sm },
+  boton: { marginTop: t.spacing.lg, minWidth: 180 },
 });

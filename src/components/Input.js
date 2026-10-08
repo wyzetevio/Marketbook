@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme, useEstilos } from '../theme';
 
 /**
- * Campo de texto con etiqueta, error y ayuda.
- *   <Input label="Correo" value={correo} onChangeText={setCorreo}
- *          keyboardType="email-address" autoCapitalize="none" error={errores.correo} />
+ * Campo de texto con etiqueta, error y ayuda (relleno gris, estilo Figma).
+ *   <Input label="Correo electrónico" placeholder="Tu correo electrónico" value={correo}
+ *          onChangeText={setCorreo} keyboardType="email-address" autoCapitalize="none"
+ *          error={errores.correo} />
  *   <Input label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry />
  *   <Input label="Descripción" value={desc} onChangeText={setDesc} multiline />
  *
- * label: texto sobre el campo · error: mensaje en rojo bajo el campo (borde rojo)
+ * label: texto sobre el campo · error: mensaje rojo bajo el campo (borde rojo)
  * ayuda: texto gris bajo el campo (se oculta si hay error)
- * secureTextEntry: campo de contraseña con botón Mostrar/Ocultar
+ * secureTextEntry: campo de contraseña con icono de ojo para mostrar/ocultar
  * estilo: estilos extra del contenedor
  * Cualquier otra prop (placeholder, keyboardType, maxLength, onSubmitEditing...) va al TextInput.
  */
@@ -47,7 +49,7 @@ export default function Input({
         <TextInput
           style={[styles.input, multiline && styles.inputMultilinea]}
           placeholderTextColor={t.colors.textoTenue}
-          selectionColor={t.colors.primario}
+          selectionColor={t.colors.acento}
           secureTextEntry={secureTextEntry && !mostrar}
           multiline={multiline}
           editable={editable}
@@ -59,11 +61,11 @@ export default function Input({
         {secureTextEntry ? (
           <Pressable
             onPress={() => setMostrar((v) => !v)}
-            hitSlop={8}
+            hitSlop={10}
             accessibilityRole="button"
             accessibilityLabel={mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña'}
           >
-            <Text style={styles.toggle}>{mostrar ? 'Ocultar' : 'Mostrar'}</Text>
+            <Ionicons name={mostrar ? 'eye-outline' : 'eye-off-outline'} size={20} color={t.colors.textoTenue} />
           </Pressable>
         ) : null}
       </View>
@@ -78,21 +80,21 @@ export default function Input({
 
 const crearEstilos = (t) => ({
   contenedor: { marginBottom: t.spacing.md },
-  label: { ...t.typography.etiqueta, color: t.colors.texto, marginBottom: t.spacing.xs },
+  label: { ...t.typography.etiqueta, color: t.colors.texto, marginBottom: t.spacing.sm },
   campo: {
     flexDirection: 'row',
     alignItems: 'center',
     minHeight: 48,
     paddingHorizontal: t.spacing.md,
-    backgroundColor: t.colors.superficie,
+    backgroundColor: t.colors.superficieAlt,
     borderWidth: 1,
-    borderColor: t.colors.borde,
-    borderRadius: t.radius.md,
+    borderColor: t.colors.superficieAlt, // sin borde visible hasta enfocar
+    borderRadius: t.radius.sm,
   },
   campoMultilinea: { alignItems: 'flex-start', paddingVertical: t.spacing.sm },
-  enfocado: { borderColor: t.colors.primario },
+  enfocado: { borderColor: t.colors.texto, backgroundColor: t.colors.fondo },
   conError: { borderColor: t.colors.peligro },
-  inactivo: { backgroundColor: t.colors.superficieAlt },
+  inactivo: { opacity: 0.6 },
   input: {
     flex: 1,
     fontSize: t.typography.cuerpo.fontSize,
@@ -101,7 +103,6 @@ const crearEstilos = (t) => ({
     ...(Platform.OS === 'web' ? { outlineStyle: 'none' } : null), // el borde ya marca el foco
   },
   inputMultilinea: { minHeight: 96, textAlignVertical: 'top' },
-  toggle: { ...t.typography.etiqueta, color: t.colors.primario, marginLeft: t.spacing.sm },
   error: { ...t.typography.pequeno, color: t.colors.peligro, marginTop: t.spacing.xs },
   ayuda: { ...t.typography.pequeno, color: t.colors.textoSecundario, marginTop: t.spacing.xs },
 });
