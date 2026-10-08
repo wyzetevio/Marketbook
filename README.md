@@ -1,334 +1,1344 @@
 # 📚 Marketbook — Marketplace de Libros
 
-> Compra. Vende. Encuentra tu próxima lectura.
+> **Compra. Vende. Encuentra tu próxima lectura.**
 
-Proyecto grupal de **Desarrollo de Aplicaciones Móviles (UTP) — Grupo 5**. Aplicación móvil multiplataforma para compra y venta **simulada** de libros físicos nuevos o usados, implementada progresivamente con **React Native + Expo + Supabase (Auth, PostgreSQL/Data REST API y Storage)**.
+Proyecto grupal del curso **Desarrollo de Aplicaciones Móviles — UTP, Grupo 5**.
 
-**Repositorio base:** https://github.com/wyzetevio/Marketbook  
-**Documento actualizado para:** S08.s2 — Implementación de una API REST en un proyecto de aplicaciones móviles.
+Marketbook es una aplicación móvil multiplataforma para **publicar, explorar, comprar y vender libros físicos**. El proyecto utiliza **React Native + Expo** en el frontend y **Supabase** como backend, incluyendo autenticación, PostgreSQL, API REST (PostgREST), RLS, funciones SQL y persistencia local con AsyncStorage.
 
-> **Este README distingue el diseño objetivo del estado implementado.** No afirma que todos los módulos del proyecto final estén concluidos.
+> **Documento de referencia del proyecto — Avance 2 / Proyecto Final 2.**
+>
+> Este README describe tanto lo que ya está implementado como lo que todavía debe integrar el equipo. Una funcionalidad marcada como `⏳ Pendiente` no debe considerarse terminada aunque exista parte de su backend.
 
 ---
 
-## 1. Descripción, problema y objetivo
+## 1. Estado actual del proyecto
 
-Marketbook centraliza publicaciones de ejemplares físicos ofrecidos por usuarios. Frente a grupos de mensajería y plataformas generales, organiza datos del libro, su estado, el vendedor y el precio. El acceso a la funcionalidad principal requiere autenticación: **un solo tipo de usuario** puede comprar y vender desde la misma cuenta.
+### 🟢 Backend — S09 COMPLETADO
 
-**Objetivo general:** desarrollar una aplicación móvil multiplataforma que permita publicar, explorar y comprar libros mediante un flujo simulado, con persistencia y control de acceso.
+El backend de compra/venta ya está integrado en `main` y fue probado contra el proyecto real de Supabase.
 
-**Alcance final previsto:** registro y login; Marketplace y búsqueda; publicación y fotografías propias; carrito; checkout con pago simulado; historial de compras y ventas; direcciones; perfil; modo claro/oscuro; notificaciones. **No se procesan pagos reales.**
-
-## 2. Tecnologías y responsabilidades
-
-| Elemento | Responsabilidad |
-|---|---|
-| React Native + Expo | Aplicación cliente Android/iOS y vista de prueba web |
-| React Navigation | Navegación y pantallas protegidas por sesión |
-| Supabase Auth | Registro, login y persistencia de sesión |
-| Supabase Data REST API (PostgREST) | Endpoints CRUD expuestos desde PostgreSQL |
-| Supabase PostgreSQL | Persistencia de publicaciones y perfiles |
-| Row Level Security (RLS) | Autorizar acceso y modificaciones por propietario |
-| Supabase Storage | Fotos propias de ejemplares (integración posterior) |
-| AsyncStorage | Persistencia de sesión en el dispositivo; preferencias en etapa posterior |
-| Módulos Expo | Cámara, galería, ubicación y notificaciones (etapas posteriores) |
-
-**No hay un backend Node adicional ni un archivo JSON usado como base de datos.** La app llama a la API REST alojada en Supabase mediante `fetch`, enviando el token de la sesión real.
-
-## 3. Arquitectura
+**Resultado de `node scripts/probar_backend.mjs`:**
 
 ```text
-                     USUARIO AUTENTICADO
-                             │
-                       React Native + Expo
-                             │
-             ┌───────────────┴────────────────┐
-             │                                │
-       Pantallas / Hooks                 Expo Modules
-             │                        (funciones futuras)
-             ▼
-         Services
-  authService / publicacionesService
-             │
-     Supabase Auth + JWT
-             │
-     Data REST API (PostgREST)
-             │
-         PostgreSQL
-       ┌─────┴──────┐
-       │            │
-    usuarios    publicaciones
-       └─────┬──────┘
-             │
-       Políticas RLS
-
-En etapas posteriores: Storage, carrito, pedidos y AsyncStorage
-para preferencias. No se añaden como funcionalidades terminadas.
+30 OK · 0 fallaron · 0 avisos
 ```
 
-### Regla de acceso
+Las pruebas cubren:
 
-- Visitantes sin sesión: solo login y registro.
-- Usuario autenticado: consulta publicaciones activas y las suyas.
-- El mismo usuario puede actuar como comprador o vendedor.
-- Solamente el vendedor puede modificar, retirar o eliminar sus propias publicaciones.
-- La interfaz **y** PostgreSQL aplican esa restricción; no depende solo de ocultar botones.
+- Supabase Auth
+- perfiles de usuarios
+- CRUD de publicaciones
+- exploración de publicaciones
+- RLS y seguridad
+- compra mediante `crear_pedido()`
+- prevención de compras inválidas
+- historial de compras
+- historial de ventas
+- conservación del historial de libros vendidos
+- eliminación de publicaciones no vendidas
+- manejo de errores
+- transacciones de compra
 
-## 4. Módulos planificados (se preserva la arquitectura original)
+### 🟡 Frontend — INTEGRACIÓN EN PROCESO
 
-| Código | Módulo | Alcance |
+El backend y los hooks necesarios ya existen, pero las pantallas finales del Proyecto Final 2 se están implementando por bloques.
+
+Los tres bloques de frontend son:
+
+| Bloque | Responsable | Estado |
 |---|---|---|
-| M01 | Autenticación | Registro, inicio, recuperación, sesión, cierre |
-| M02 | Marketplace | Lista, búsqueda, filtros, detalle |
-| M03 | Gestión de publicaciones | Crear, consultar, editar, retirar, fotos |
-| M04 | Carrito | Agregar/quitar ejemplares y total |
-| M05 | Checkout | Dirección y pago simulado |
-| M06 | Compras y pedidos | Historial y estados |
-| M07 | Ventas | Historial de ejemplares vendidos |
-| M08 | Perfil | Datos personales y fotografía |
-| M09 | Configuración/notificaciones | Preferencias y alertas locales |
+| A — Base visual, acceso y navegación | César Suárez Vargas | ⏳ En desarrollo |
+| B — Marketplace y publicaciones | Piero Alessandro Ramírez Salazar | ⏳ En desarrollo |
+| C — Compra e historial | Jesús Andres Sánchez Reyes | ⏳ En desarrollo |
+| Backend, integración, pruebas y evidencias | Samuel Jeremy Torres Ayala | 🟢 Backend terminado / integración pendiente |
 
-### Funcionalidades de dispositivo previstas
+### 🎯 Objetivo de integración
 
-- Cámara y galería para fotos **propias del ejemplar** (no Google Books).
-- Expo Location para facilitar la selección de una dirección.
-- Notificaciones locales; modo claro/oscuro.
-- No son requisitos de entrega de **S08.s2** y no se declaran implementadas aquí.
-
-## 5. Modelo conceptual de datos
+El flujo final esperado es:
 
 ```text
-AUTH.USERS (Supabase Auth)
-      │
-      └── USUARIOS (id, auth_id, nombre, correo, foto_perfil)
-               │
-               ├── DIRECCIONES (planeado)
-               ├── PUBLICACIONES ── IMAGENES_PUBLICACION (planeado)
-               ├── CARRITO (planeado)
-               └── PEDIDOS ── DETALLE_PEDIDO (planeado)
+Cuenta A
+   ↓
+Publica un libro
+   ↓
+Cuenta B
+   ↓
+Explora el libro
+   ↓
+Ve el detalle
+   ↓
+Agrega al carrito
+   ↓
+Checkout con pago SIMULADO
+   ↓
+Compra
+   ↓
+Libro pasa a "vendida"
+   ↓
+Cuenta B → Mis compras
+   ↓
+Cuenta A → Mis ventas
 ```
 
-**Convención implementada en esta entrega:** `usuarios.id = usuarios.auth_id = auth.users.id`, evitando una búsqueda intermedia para obtener el propietario. `publicaciones.vendedor_id` referencia `usuarios.id`. Se conservan ambos campos del modelo original. Si el grupo ya tiene un modelo diferente en Supabase, debe reconciliarse **antes** de ejecutar la migración.
+---
 
-### Tabla `publicaciones`
+# 2. Rúbrica oficial — Avance de Proyecto Final 2
 
-| Campo | Descripción |
+La evaluación tiene **20 puntos**, distribuidos en cinco criterios de 4 puntos cada uno.
+
+| Criterio | Puntaje | Qué debe demostrar el proyecto |
+|---|---:|---|
+| Implementación de React Native | 4 pts | App funcional y bien estructurada |
+| Integración de Hooks | 4 pts | Uso adecuado de hooks en los componentes |
+| `useState` y `useEffect` | 4 pts | Manejo óptimo de estados y efectos |
+| APIs REST | 4 pts | CRUD y manejo de errores correctos |
+| AsyncStorage | 4 pts | Persistencia completa de datos |
+
+## 2.1 Evidencia esperada
+
+### React Native — 4 pts
+
+Debe poder demostrarse la aplicación funcionando con navegación y flujo completo de compra/venta.
+
+### Hooks — 4 pts
+
+Las pantallas deben consumir los hooks de `src/hooks/`.
+
+Las pantallas **no deben** llamar directamente a:
+
+```text
+supabase
+fetch
+src/services
+```
+
+La arquitectura esperada es:
+
+```text
+Pantalla
+   ↓
+Hook / Context
+   ↓
+Service
+   ↓
+API REST / RPC
+   ↓
+Supabase
+```
+
+### `useState` / `useEffect` — 4 pts
+
+Las pantallas deben manejar correctamente:
+
+- formularios
+- carga
+- errores
+- estados vacíos
+- datos recibidos
+- actualización/refresco
+- efectos asociados al ciclo de vida o foco
+
+### APIs REST — 4 pts
+
+Debe poder demostrarse:
+
+- GET
+- POST
+- PATCH
+- DELETE
+- compra mediante RPC
+- historial
+- manejo de errores
+- reglas de seguridad
+
+### AsyncStorage — 4 pts
+
+Debe demostrarse persistencia de:
+
+- sesión
+- carrito por usuario
+- preferencia de tema
+
+---
+
+# 3. Arquitectura del sistema
+
+```text
+┌─────────────────────────────────────────────┐
+│              React Native + Expo            │
+│                                             │
+│  Screens → Components → Hooks / Contexts    │
+└──────────────────────┬──────────────────────┘
+                       │
+                       ▼
+              Services / apiClient
+                       │
+                       │ HTTPS + JWT
+                       ▼
+┌─────────────────────────────────────────────┐
+│                  Supabase                   │
+│                                             │
+│  Auth                                       │
+│  PostgreSQL                                 │
+│  PostgREST / Data REST API                  │
+│  RLS                                        │
+│  SQL Functions                              │
+│                                             │
+│  crear_pedido()                             │
+│  mis_ventas()                               │
+└─────────────────────────────────────────────┘
+
+Dispositivo:
+AsyncStorage
+ ├── sesión
+ ├── carrito por usuario
+ └── tema
+```
+
+### Importante
+
+**No existe un backend Node.js ni Spring Boot en esta arquitectura.**
+
+Supabase es el backend del proyecto.
+
+No se utiliza un archivo JSON como base de datos.
+
+---
+
+# 4. Tecnologías
+
+| Tecnología | Uso |
 |---|---|
-| id | Identificador |
-| vendedor_id | Usuario propietario |
-| titulo / autor | Datos del libro |
-| categoria | Clasificación opcional |
-| isbn | Opcional |
-| estado_libro | Nuevo / Como nuevo / Bueno / Regular |
-| precio | Precio positivo en soles |
-| descripcion | Texto descriptivo |
-| estado_publicacion | activa / vendida / retirada |
-| fecha_publicacion | Fecha de creación |
+| React Native | Aplicación móvil |
+| Expo | Desarrollo y ejecución |
+| React Navigation | Navegación |
+| JavaScript | Lenguaje principal |
+| Supabase Auth | Registro, login y sesión |
+| Supabase PostgreSQL | Base de datos |
+| PostgREST | API REST |
+| RLS | Seguridad y autorización |
+| SQL Functions | Reglas de compra/venta |
+| AsyncStorage | Persistencia local |
+| Git / GitHub | Control de versiones |
 
-**Retirar ≠ eliminar:** retirar es `PATCH estado_publicacion='retirada'` y preserva el registro. `DELETE` es eliminación física para demostrar el método solicitado en S08.s2; se restringe al propietario.
+---
 
-## 6. S08.s2 — Integración de API REST y CRUD
+# 5. Backend implementado
 
-**Consigna:** integrar y consumir una API REST en el proyecto móvil existente para crear, leer, actualizar y eliminar información. Se implementa sobre **publicaciones de libros**, no como otro proyecto independiente.
+## 5.1 Tablas
 
-**URL de la API generada por Supabase:**
+### `usuarios`
 
-```text
-https://TU_PROYECTO.supabase.co/rest/v1/publicaciones
-```
+Perfil asociado al usuario autenticado.
 
-| Acción | Método HTTP | Pantalla |
-|---|---|---|
-| Listar publicaciones activas | GET | Marketplace → Explorar |
-| Consultar propias o detalle | GET | Mis publicaciones / Detalle |
-| Crear publicación propia | POST | Vender libro |
-| Editar o retirar propia | PATCH | Detalle → Editar / Retirar |
-| Eliminar propia (prueba) | DELETE | Detalle → Eliminar |
-
-Se usa `fetch()` en `src/services/publicacionesService.js` con cabeceras `apikey` y `Authorization: Bearer <JWT de Supabase Auth>`. El backend real lo proporciona PostgREST; **`useState`, `useEffect`/`useFocusEffect`** gestionan estados y recarga de datos.
-
-### Evidencia funcional mínima
-
-1. Registrarse e iniciar sesión realmente con Supabase Auth.
-2. GET: abrir Explorar (puede empezar vacío).
-3. POST: crear un libro de prueba y comprobar que aparece.
-4. PATCH: cambiar su precio; comprobar el nuevo valor tras volver.
-5. DELETE: eliminar ese libro y comprobar que desaparece.
-6. Cerrar sesión y volver a entrar: el resultado debe persistir.
-7. Opcional: comprobar que otra cuenta no puede editarlo ni eliminarlo.
-
-Las capturas deben obtenerse ejecutando **tu propia app**. No se incluyen capturas ficticias.
-
-## 7. Seguridad y privacidad
-
-- El archivo `.env` **no debe subirse a GitHub**; se incluye `.env.example`.
-- Las variables `EXPO_PUBLIC_` se empaquetan en el cliente y **no son secretos**. Se usa solamente Project URL y **publishable key**.
-- Nunca incluir `service_role`, secret key, contraseña de base de datos ni credenciales privadas en el código.
-- RLS está habilitado en tablas expuestas; una sesión puede insertar/actualizar/eliminar solo publicaciones con `vendedor_id = auth.uid()`.
-- Visitantes anónimos no reciben privilegios de lectura o escritura sobre estas tablas.
-- Las contraseñas las gestiona Supabase Auth, no la tabla pública `usuarios`.
-- La política de lectura muestra publicaciones activas y, adicionalmente, las del propio vendedor.
-- Las fotografías y datos adicionales tendrán políticas independientes cuando se implementen.
-
-## 8. Estructura real del proyecto
+Campos principales:
 
 ```text
-Marketbook/
-├── assets/                           # Conservar del repositorio original
-├── src/
-│   ├── components/                   # Evolución futura
-│   ├── navigation/
-│   │   └── AppNavigator.js
-│   ├── screens/
-│   │   ├── auth/
-│   │   │   ├── LoginScreen.js
-│   │   │   └── RegisterScreen.js
-│   │   ├── marketplace/
-│   │   │   ├── MarketplaceScreen.js
-│   │   │   └── PublicationDetailScreen.js
-│   │   └── publications/
-│   │       └── CreatePublicationScreen.js
-│   ├── services/
-│   │   ├── supabase/
-│   │   │   ├── client.js
-│   │   │   └── authService.js
-│   │   └── publicacionesService.js
-│   └── utils/
-│       └── dialogs.js
-├── supabase/
-│   └── migrations/
-│       └── 20260928_s08_publicaciones.sql
-├── App.js
-├── index.js
-├── app.json
-├── package.json
-├── package-lock.json                # Regenerar con npm install
-├── .env.example                     # Se copia a .env
-├── .gitignore
-└── README.md
+id
+auth_id
+nombre
+correo
+foto_perfil
 ```
 
-La versión distribuida para S08.s2 es un **paquete de integración**. Debe copiarse sobre una copia del repositorio original: así conserva `assets`, `App.js`, `index.js` y las carpetas originales no reemplazadas.
+El correo de otros usuarios no se expone públicamente.
 
-## 9. Instalación paso a paso
+### `publicaciones`
 
-### Paso 1. Respaldar tu versión
+Representa un libro físico ofrecido por un usuario.
 
-Desde la carpeta del proyecto original, crea una copia antes de reemplazar archivos. También puedes usar otra rama en Git. **No mezclar** el antiguo parche `api/server.js`/`books.json`: pertenecía a un prototipo descartado.
-
-### Paso 2. Integrar el ZIP nuevo
-
-Descomprime **Marketbook_S08_Grupo5_Integracion_Supabase.zip** y copia **su contenido**, no la carpeta contenedora, sobre tu copia local de Marketbook. Acepta reemplazar `README.md`, `package.json`, `.gitignore` y las pantallas listadas. No borres los archivos originales que el parche no trae.
-
-Si antes copiaste el prototipo antiguo, elimina exclusivamente estos componentes obsoletos de ese prototipo:
+Campos principales:
 
 ```text
-api/
-src/services/booksApi.js
-README_S08.md
+id
+vendedor_id
+titulo
+autor
+categoria
+isbn
+estado_libro
+precio
+descripcion
+estado_publicacion
+fecha_publicacion
 ```
 
-No elimines otras carpetas de tu proyecto que no sean las del prototipo antiguo.
+Estados de publicación:
 
-### Paso 3. Crear proyecto Supabase y tabla
+```text
+activa
+vendida
+retirada
+```
 
-1. Entra a tu proyecto Supabase existente o crea uno **de pruebas**.
-2. Si ya hay tablas `usuarios`/`publicaciones`, compara su esquema primero; **no ejecutes a ciegas** la migración sobre datos existentes.
-3. En un proyecto vacío, abre SQL Editor.
-4. Copia y ejecuta `supabase/migrations/20260928_s08_publicaciones.sql`.
-5. Comprueba en Table Editor que aparecen `usuarios` y `publicaciones` con RLS habilitado.
+### `pedidos`
 
-El SQL crea el perfil al registrarse, las claves foráneas, validaciones y políticas de acceso. **No crea** todavía las tablas planificadas para carrito, pedidos o fotografías.
+Cabecera de una compra.
 
-### Paso 4. Configurar variables
+Incluye:
 
-Copia `.env.example` y renómbralo `.env`:
+```text
+comprador
+total
+direccion_envio
+metodo_pago
+estado
+fecha
+```
+
+### `detalle_pedido`
+
+Detalle de los libros incluidos en un pedido.
+
+Guarda información histórica del libro comprado.
+
+---
+
+# 6. API REST implementada
+
+Los servicios de la aplicación utilizan la API REST de Supabase.
+
+| Operación | Método | Ruta / función | Hook |
+|---|---|---|---|
+| Libros activos | GET | `/rest/v1/publicaciones` | `usePublicaciones` |
+| Mis publicaciones | GET | `/rest/v1/publicaciones` | `usePublicaciones` |
+| Detalle | GET | `/rest/v1/publicaciones` | `usePublicacion` |
+| Crear | POST | `/rest/v1/publicaciones` | `usePublicacionesActions` |
+| Editar | PATCH | `/rest/v1/publicaciones` | `usePublicacionesActions` |
+| Retirar | PATCH | `/rest/v1/publicaciones` | `usePublicacionesActions` |
+| Eliminar | DELETE | `/rest/v1/publicaciones` | `usePublicacionesActions` |
+| Comprar | POST | `/rest/v1/rpc/crear_pedido` | `usePedidos` |
+| Mis compras | GET | `/rest/v1/pedidos` | `usePedidos` |
+| Mis ventas | POST | `/rest/v1/rpc/mis_ventas` | `usePedidos` |
+| Perfil | GET/PATCH | `/rest/v1/usuarios` | `usePerfil` |
+
+Las solicitudes autenticadas utilizan:
+
+```text
+apikey
+Authorization: Bearer <JWT>
+```
+
+---
+
+# 7. Reglas de negocio y seguridad
+
+La seguridad no depende únicamente de la interfaz.
+
+Supabase PostgreSQL + RLS aplica las reglas.
+
+### Publicaciones
+
+- Solo el propietario puede editar.
+- Solo el propietario puede retirar.
+- Solo el propietario puede eliminar.
+- Un libro vendido no puede editarse.
+- Un libro vendido no puede reactivarse.
+- Un libro vendido no puede eliminarse.
+- El vendedor no puede marcar manualmente un libro como `vendida`.
+
+### Compras
+
+- Se necesita sesión.
+- No se puede comprar un libro propio.
+- No se puede comprar un libro vendido.
+- No se puede comprar un libro inexistente.
+- El carrito no puede estar vacío.
+- La dirección debe ser válida.
+- La compra utiliza pago simulado.
+- Un libro físico solo puede venderse una vez.
+- La segunda persona que intente comprar un libro ya vendido recibe un error.
+- La compra es transaccional: si falla una parte, no queda una compra incompleta.
+
+### Pedidos
+
+El frontend no inserta directamente en:
+
+```text
+pedidos
+detalle_pedido
+```
+
+La compra se realiza mediante:
+
+```text
+crear_pedido()
+```
+
+---
+
+# 8. Hooks disponibles para el frontend
+
+Las pantallas deben usar los hooks existentes.
+
+Documentación detallada:
+
+```text
+docs/HOOKS.md
+```
+
+## `useAuth()`
+
+```js
+{
+  user,
+  session,
+  loading,
+  signIn(),
+  signUp(),
+  signOut()
+}
+```
+
+Uso:
+
+- Login
+- Registro
+- Sesión
+- Cierre de sesión
+- Protección de navegación
+
+---
+
+## `usePublicaciones()`
+
+Permite consultar publicaciones activas o propias.
+
+```js
+usePublicaciones({
+  modo: 'activas'
+})
+```
+
+o:
+
+```js
+usePublicaciones({
+  modo: 'mias'
+})
+```
+
+Devuelve:
+
+```js
+{
+  publicaciones,
+  categorias,
+  cargando,
+  error,
+  refrescar
+}
+```
+
+---
+
+## `usePublicacion(id)`
+
+Obtiene el detalle de una publicación.
+
+Devuelve:
+
+```js
+{
+  libro,
+  esPropia,
+  cargando,
+  error,
+  refrescar
+}
+```
+
+---
+
+## `usePublicacionesActions()`
+
+Acciones:
+
+```js
+{
+  crear(),
+  actualizar(),
+  retirar(),
+  eliminar()
+}
+```
+
+---
+
+## `useCarrito()`
+
+Devuelve:
+
+```js
+{
+  items,
+  cantidad,
+  total,
+  cargando,
+  agregar(),
+  quitar(),
+  vaciar(),
+  estaEnCarrito()
+}
+```
+
+El carrito se guarda en AsyncStorage por usuario.
+
+Un libro:
+
+- no puede agregarse dos veces
+- no puede ser comprado por su propio vendedor
+- no puede agregarse si ya no está disponible
+
+---
+
+## `usePedidos()`
+
+Devuelve:
+
+```js
+{
+  comprar(),
+  misCompras,
+  misVentas,
+  cargando,
+  error,
+  refrescar()
+}
+```
+
+Compra:
+
+```js
+comprar(ids, {
+  direccion,
+  metodoPago: 'simulado'
+})
+```
+
+Después de una compra exitosa:
+
+```js
+useCarrito().vaciar()
+```
+
+---
+
+## `usePerfil()`
+
+Permite:
+
+- consultar perfil
+- editar nombre
+- refrescar perfil
+
+---
+
+## `useTema()`
+
+Devuelve:
+
+```js
+{
+  modo,
+  esOscuro,
+  cargando,
+  alternarModo
+}
+```
+
+El modo se guarda en AsyncStorage.
+
+Los colores y estilos finales son responsabilidad del frontend.
+
+---
+
+# 9. Reglas para las pantallas
+
+Las pantallas deben:
+
+- utilizar hooks
+- utilizar componentes reutilizables cuando corresponda
+- manejar `loading`
+- manejar `error`
+- manejar estado vacío
+- permitir reintentar cuando corresponda
+- mostrar errores de acciones al usuario
+- utilizar `e.message` cuando el hook lance un error
+
+### ❌ No hacer
+
+```js
+supabase.from(...)
+```
+
+directamente en una pantalla.
+
+Tampoco:
+
+```js
+fetch(...)
+```
+
+directamente desde una pantalla.
+
+Tampoco:
+
+```js
+import ... from '../services/...'
+```
+
+desde una pantalla.
+
+### ✅ Hacer
+
+```js
+const {
+  publicaciones,
+  cargando,
+  error,
+  refrescar
+} = usePublicaciones({
+  modo: 'activas'
+});
+```
+
+---
+
+# 10. Alcance del frontend — Proyecto Final 2
+
+## 🟢 Bloque A — Base visual, acceso y navegación
+
+**Responsable: César Suárez Vargas**
+
+### Tema y componentes
+
+- `src/theme/`
+- Button
+- Input
+- BookCard
+- Header
+- EmptyState
+- LoadingView
+- ErrorView
+
+### Autenticación
+
+- Login
+- Registro
+- Integración con `useAuth`
+
+### Navegación
+
+- Login cuando no existe sesión
+- Aplicación cuando existe sesión
+- Navegación principal
+- Explorar
+- Carrito
+- Mis libros
+- Perfil
+
+### Perfil
+
+- Nombre
+- Edición del nombre con `usePerfil`
+- Cerrar sesión
+- Modo claro/oscuro con `useTema`
+
+---
+
+## 🔵 Bloque B — Marketplace y publicaciones
+
+**Responsable: Piero Alessandro Ramírez Salazar**
+
+### Explorar
+
+- Lista de libros activos
+- Buscador
+- Filtros por categoría
+- Loading
+- Error
+- Estado vacío
+- Reintentar
+
+### Detalle
+
+- Título
+- Autor
+- Categoría
+- Estado
+- Precio
+- Descripción
+- Vendedor
+- Agregar al carrito
+- Acciones del propietario
+
+### Publicación
+
+- Crear libro
+- Editar libro
+- Validaciones
+- Errores
+- Retirar
+- Eliminar
+
+### Mis publicaciones
+
+Mostrar:
+
+```text
+activa
+vendida
+retirada
+```
+
+Un libro vendido debe conservarse en el historial.
+
+---
+
+## 🟣 Bloque C — Compra e historial
+
+**Responsable: Jesús Andres Sánchez Reyes**
+
+### Carrito
+
+- Lista de libros
+- Quitar
+- Vaciar
+- Cantidad
+- Total
+- Estado vacío
+
+### Checkout
+
+- Dirección
+- Pago simulado
+- Validación
+- Loading
+- Error
+
+### Confirmación
+
+Mostrar confirmación después de una compra exitosa.
+
+### Mis compras
+
+Mostrar:
+
+- pedido
+- fecha
+- total
+- estado
+- dirección
+- método de pago
+- libros comprados
+
+### Mis ventas
+
+Mostrar:
+
+- libro vendido
+- fecha
+- precio
+- estado
+- comprador según los datos permitidos por el backend
+
+---
+
+# 11. Responsabilidad de Samuel — Backend e integración
+
+**Samuel Jeremy Torres Ayala**
+
+Responsabilidades:
+
+```text
+src/hooks/
+src/services/
+supabase/
+scripts/
+```
+
+Además:
+
+- integración final
+- revisión de Pull Requests
+- pruebas del backend
+- pruebas con dos cuentas
+- revisión de RLS
+- evidencia de la rúbrica
+- resolución de errores de backend
+- integración final en `main`
+
+### Backend congelado
+
+No forma parte del alcance obligatorio actual:
+
+```text
+Marcar enviado
+```
+
+Es una funcionalidad opcional y se deja fuera de la entrega salvo que el equipo decida incorporarla posteriormente.
+
+---
+
+# 12. Organización Git
+
+La rama principal es:
+
+```text
+main
+```
+
+Nadie debe trabajar directamente sobre `main`.
+
+Ramas previstas:
+
+```text
+feature/front-bloque-a
+feature/front-bloque-b
+feature/front-bloque-c
+```
+
+Flujo:
+
+```text
+main
+  ↓
+crear rama
+  ↓
+desarrollar
+  ↓
+commit
+  ↓
+push
+  ↓
+Pull Request
+  ↓
+revisión
+  ↓
+merge
+  ↓
+main
+```
+
+Antes de comenzar:
+
+```bash
+git checkout main
+git pull origin main
+npm install
+```
+
+---
+
+# 13. Configuración de Supabase para cada integrante
+
+Todos los integrantes utilizan **el mismo proyecto Supabase**, pero cada integrante tiene su propio `.env` local.
+
+Cada `.env` contiene:
 
 ```env
 EXPO_PUBLIC_SUPABASE_URL=https://TU_PROYECTO.supabase.co
-EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=TU_CLAVE_PUBLICA
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=TU_PUBLISHABLE_KEY
 ```
 
-Obtén ambos valores de las opciones de conexión/API de tu propio proyecto Supabase. No incluyas una clave secreta.
+### Importante
 
-### Paso 5. Instalar dependencias
+El `.env`:
 
-En VS Code, terminal **dentro de la carpeta Marketbook**:
+- no se sube a GitHub
+- no se incluye en commits
+- no se reemplaza por credenciales de otra persona
+
+No utilizar:
+
+```text
+service_role
+secret key
+contraseña de base de datos
+```
+
+Cada integrante puede utilizar su propia cuenta de prueba dentro del mismo proyecto Supabase.
+
+Esto permite probar:
+
+```text
+Vendedor → publica
+Comprador → explora
+Comprador → compra
+Vendedor → ve la venta
+```
+
+---
+
+# 14. Configuración inicial
+
+## 14.1 Obtener el proyecto
+
+```bash
+git clone https://github.com/wyzetevio/Marketbook.git
+cd Marketbook
+```
+
+Actualizar:
+
+```bash
+git checkout main
+git pull origin main
+```
+
+## 14.2 Instalar
 
 ```bash
 npm install
 ```
 
-Esto actualiza `package-lock.json` según el `package.json` nuevo y reconstruye `node_modules`. Si Expo indica incompatibilidad de alguna dependencia nativa, ejecuta:
+## 14.3 Configurar `.env`
 
-```bash
-npx expo install --check
+Copiar:
+
+```text
+.env.example
 ```
 
-y aplica la versión sugerida para tu SDK antes de entregar.
+como:
 
-### Paso 6. Ejecutar
+```text
+.env
+```
+
+y completar:
+
+```env
+EXPO_PUBLIC_SUPABASE_URL=...
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
+```
+
+## 14.4 Ejecutar
 
 ```bash
 npx expo start
 ```
 
-- `w`: web en el navegador. Si falla la compilación web, revisar `react-dom` y `react-native-web`.
-- `a`: Android Emulator, después de encenderlo desde Android Studio → Device Manager.
-- También puedes abrir Expo Go desde un celular compatible.
+Para limpiar caché:
 
-La API es remota y utiliza HTTPS; **no hay que encender un servidor local**.
+```bash
+npx expo start --clear
+```
 
-### Paso 7. Verificar registro y CRUD
+---
 
-- Registra una cuenta con correo y contraseña.
-- Si Supabase tiene confirmación de correo activa, revisa la bandeja y confirma antes de iniciar sesión.
-- Prueba GET → POST → PATCH → DELETE en las pantallas y toma capturas.
-- Para verificar seguridad, prueba con otra cuenta autenticada.
+# 15. Supabase — configuración necesaria
 
-## 10. Problemas frecuentes
+En el proyecto Supabase debe estar aplicada la migración de S08:
 
-| Problema | Revisión |
-|---|---|
-| Falta URL o clave pública | Configura `.env` y reinicia Metro |
-| Login no entra | Verifica correo/contraseña y confirmación de email |
-| Tabla no encontrada | Ejecuta migración en el proyecto indicado en `.env` |
-| 401 / 403 / error RLS | Revisa sesión, permisos y políticas del SQL |
-| Marketplace vacío | Es normal inicialmente: crea un libro con POST |
-| POST no guarda | Comprueba que se creó el perfil `usuarios` del vendedor |
-| Expo no abre en Android | Encender emulador y presionar `a`; verificar `adb devices` |
-| Tras cambiar `.env` no se refleja | Detener Expo y reiniciar con `npx expo start --clear` |
+```text
+supabase/migrations/20260928_s08_publicaciones.sql
+```
 
-## 11. Estado de implementación, separado del objetivo
+y la migración S09:
 
-| Parte | Versión base del repositorio | Paquete S08.s2 propuesto |
+```text
+supabase/migrations/20261008_s09_compra_venta.sql
+```
+
+S09 crea/configura:
+
+```text
+pedidos
+detalle_pedido
+crear_pedido()
+mis_ventas()
+```
+
+También configura las políticas RLS correspondientes.
+
+Para la demo, la configuración de Email debe permitir el registro/inicio de sesión que utiliza el equipo.
+
+---
+
+# 16. Prueba automática del backend
+
+Archivo:
+
+```text
+scripts/probar_backend.mjs
+```
+
+Ejecutar:
+
+```bash
+node scripts/probar_backend.mjs
+```
+
+El script prueba dos cuentas reales:
+
+```text
+A = vendedor
+B = comprador
+```
+
+Comprueba:
+
+- autenticación
+- perfiles
+- POST
+- GET
+- PATCH
+- DELETE
+- exploración
+- RLS
+- compra
+- errores
+- historial
+- ventas
+
+Resultado esperado actual:
+
+```text
+30 OK · 0 fallaron · 0 avisos
+```
+
+Resultado guardado en:
+
+```text
+scripts/ultimo_resultado.txt
+```
+
+---
+
+# 17. Guion de prueba final
+
+Cuando los tres bloques de frontend estén integrados, se debe probar:
+
+### Cuenta A — vendedor
+
+1. Registrar/iniciar sesión.
+2. Publicar un libro.
+3. Publicar otro libro.
+4. Editar uno.
+5. Retirar uno.
+6. Mantener otro activo.
+
+### Cuenta B — comprador
+
+7. Registrar/iniciar sesión.
+8. Explorar libros de A.
+9. Abrir detalle.
+10. Agregar al carrito.
+11. Comprobar persistencia del carrito.
+12. Abrir Checkout.
+13. Introducir dirección.
+14. Seleccionar pago simulado.
+15. Comprar.
+
+### Después de comprar
+
+16. B → comprobar `Mis compras`.
+17. A → comprobar `Mis ventas`.
+18. A → comprobar que el libro comprado aparece como `vendida`.
+19. Intentar comprar el mismo libro nuevamente.
+20. Comprobar mensaje de error.
+21. A puede eliminar un libro que todavía no fue vendido.
+22. Comprobar persistencia de sesión.
+23. Comprobar persistencia del tema.
+24. Ejecutar nuevamente las pruebas del backend.
+
+---
+
+# 18. Evidencias para la sustentación
+
+## React Native
+
+Capturas de:
+
+- Login
+- Registro
+- Marketplace
+- Detalle
+- Carrito
+- Checkout
+- Mis compras
+- Mis ventas
+- Perfil
+- navegación
+
+## Hooks
+
+Mostrar:
+
+```text
+src/hooks/
+```
+
+y la relación:
+
+```text
+Pantalla → Hook → Service → Supabase
+```
+
+Especialmente:
+
+```text
+useAuth
+usePublicaciones
+useCarrito
+usePedidos
+usePerfil
+useTema
+```
+
+## `useState` / `useEffect`
+
+Mostrar fragmentos de:
+
+- formularios
+- carga
+- errores
+- efectos
+- actualización de datos
+
+## APIs REST
+
+Mostrar:
+
+- GET
+- POST
+- PATCH
+- DELETE
+- compra
+- historial
+
+Además:
+
+```text
+scripts/ultimo_resultado.txt
+```
+
+con:
+
+```text
+30 OK · 0 fallaron · 0 avisos
+```
+
+## AsyncStorage
+
+Demostrar:
+
+- sesión persistente
+- carrito persistente
+- tema persistente
+
+---
+
+# 19. Estructura actual del proyecto
+
+```text
+Marketbook/
+├── assets/
+├── docs/
+│   ├── BACKEND.md
+│   └── HOOKS.md
+├── scripts/
+│   ├── probar_backend.mjs
+│   └── ultimo_resultado.txt
+├── src/
+│   ├── components/
+│   ├── hooks/
+│   │   ├── AppProviders.js
+│   │   ├── AuthContext.js
+│   │   ├── CarritoContext.js
+│   │   ├── TemaContext.js
+│   │   ├── usePedidos.js
+│   │   ├── usePerfil.js
+│   │   └── usePublicaciones.js
+│   ├── navigation/
+│   │   └── AppNavigator.js
+│   ├── screens/
+│   │   ├── auth/
+│   │   ├── marketplace/
+│   │   └── publications/
+│   ├── services/
+│   │   ├── apiClient.js
+│   │   ├── pedidosService.js
+│   │   ├── perfilService.js
+│   │   ├── publicacionesService.js
+│   │   └── supabase/
+│   │       ├── authService.js
+│   │       └── client.js
+│   └── utils/
+│       └── dialogs.js
+├── supabase/
+│   └── migrations/
+│       ├── 20260928_s08_publicaciones.sql
+│       └── 20261008_s09_compra_venta.sql
+├── App.js
+├── package.json
+├── package-lock.json
+├── .env.example
+├── .gitignore
+└── README.md
+```
+
+---
+
+# 20. Documentación complementaria
+
+### `docs/HOOKS.md`
+
+Guía para los integrantes de frontend.
+
+Explica:
+
+- hooks disponibles
+- parámetros
+- valores devueltos
+- acciones
+- errores
+- ejemplos de uso
+
+### `docs/BACKEND.md`
+
+Explica:
+
+- arquitectura
+- tablas
+- endpoints
+- RLS
+- funciones SQL
+- puesta en marcha
+- guion de prueba
+- relación con la rúbrica
+
+### `scripts/probar_backend.mjs`
+
+Prueba automática de compra/venta y seguridad.
+
+### `scripts/ultimo_resultado.txt`
+
+Último resultado de la prueba automática.
+
+---
+
+# 21. Funcionalidades futuras / fuera del alcance inmediato
+
+Estas funcionalidades forman parte del alcance general previsto, pero **no deben considerarse terminadas si no aparecen implementadas en el código actual**:
+
+- fotografías de libros
+- cámara
+- galería
+- ubicación
+- direcciones persistentes independientes
+- notificaciones
+- recuperación de contraseña personalizada
+- seguimiento avanzado del pedido
+- estado `enviado`
+- pagos reales
+- integración con plataformas de pago
+- recomendaciones avanzadas
+
+### Pago
+
+El proyecto utiliza:
+
+```text
+PAGO SIMULADO
+```
+
+No se procesan pagos reales.
+
+---
+
+# 22. Decisiones técnicas importantes
+
+### Supabase es el backend
+
+No agregar Spring Boot, Node.js o Express como backend paralelo sin una decisión explícita del equipo.
+
+### Hooks son la interfaz del frontend
+
+Las pantallas deben depender de hooks y contextos, no directamente de Supabase.
+
+### Seguridad en backend
+
+La interfaz puede ocultar botones, pero la seguridad real debe permanecer en RLS y funciones SQL.
+
+### Un libro físico = una venta
+
+Una publicación representa un ejemplar físico. Una vez vendida, queda protegida para conservar el historial.
+
+### El carrito es local
+
+El carrito utiliza AsyncStorage y está separado por usuario autenticado.
+
+---
+
+# 23. Estado de cumplimiento de la rúbrica
+
+| Criterio | Backend / base | Integración final |
 |---|---|---|
-| Login | Simulado | Integrado con Supabase Auth |
-| Registro | Validación local | Registro real y perfil automático |
-| Marketplace | Tres libros fijos | GET de API REST |
-| Crear publicación | Mensaje simulado | POST real |
-| Editar, retirar, eliminar | Pendientes | PATCH / DELETE con RLS |
-| Base de datos | Sin integración | Tablas PostgreSQL de S08 |
-| Fotografías propias | Pendientes | Pendientes |
-| Carrito, checkout, pedidos, ventas y perfil | Pendientes | Pendientes |
+| React Native | 🟢 Base existente | 🟡 Pendiente de integrar todos los bloques |
+| Hooks | 🟢 Hooks implementados | 🟡 Pantallas finales deben consumirlos |
+| `useState` / `useEffect` | 🟢 Implementados en hooks/contextos | 🟡 Completar integración en pantallas |
+| APIs REST | 🟢 CRUD + compra + historial, 30/30 | 🟡 Demostrar desde la app |
+| AsyncStorage | 🟢 Sesión + carrito + tema | 🟡 Demostrar persistencia desde la app |
 
-**Importante:** la columna «paquete S08.s2» representa el código de integración proporcionado, no una prueba de que ya funcione contra tu instancia particular. Requiere ejecutar SQL, configurar tu `.env` y hacer pruebas reales. El repositorio público original no ha sido modificado automáticamente.
+> **Conclusión actual:** el backend crítico de Avance 2 está terminado y validado. El trabajo restante principal es la integración de los tres bloques de frontend, la prueba punta a punta y la preparación de evidencias.
 
-## 12. Ruta de desarrollo por etapas
+---
 
-- **Etapa 1 (semanas 1–5):** componentes, formularios, estado y navegación.
-- **Etapa 2 (semanas 6–10):** hooks, API REST, CRUD, persistencia, temas. **S08.s2 pertenece aquí.**
-- **Etapa 3 (semanas 11–15):** fotos propias, cámara/galería, ubicación, permisos y notificaciones.
-- **Etapa 4 (semanas 16–18):** integración, pruebas, optimización, builds y proyecto final.
+# 24. Regla para cualquier integrante o IA que trabaje sobre el repositorio
 
-El sílabo ubica API/fetch en la semana 8 y AsyncStorage en la semana 9. No se debe presentar el alcance futuro como entregado hoy.
+Antes de modificar código:
 
-## 13. Grupo y referencias
+1. Leer este `README.md`.
+2. Leer `docs/HOOKS.md`.
+3. Leer `docs/BACKEND.md`.
+4. Revisar el estado actual de `main`.
+5. No asumir que una funcionalidad marcada como `⏳ Pendiente` ya está implementada.
+6. No modificar backend para resolver un problema de frontend sin comprobar primero si el hook existente ya proporciona el dato.
+7. No crear otro backend.
+8. No subir `.env`.
+9. Trabajar mediante ramas y Pull Requests.
+10. Actualizar esta documentación si el alcance o el estado real cambia.
 
-**Grupo 5.** Líder de grupo según la consigna: Piero Alessandro Ramírez Salazar. Integrantes: completar con los nombres confirmados por el grupo.
+### Fuente de verdad
 
-- Repositorio original: https://github.com/wyzetevio/Marketbook
-- Supabase API: https://supabase.com/docs/guides/api
-- Supabase React Native Auth: https://supabase.com/docs/guides/auth/quickstarts/react-native
-- Supabase RLS: https://supabase.com/docs/guides/database/postgres/row-level-security
-- Expo + Supabase: https://docs.expo.dev/guides/using-supabase/
+Cuando exista una diferencia entre una descripción antigua y el código actual:
+
+```text
+código actual + docs/HOOKS.md + docs/BACKEND.md
+```
+
+son la referencia técnica para el comportamiento implementado.
+
+El README describe el alcance y el estado general del proyecto; no debe utilizarse para afirmar que una funcionalidad `⏳ Pendiente` ya está terminada.
+
+---
+
+# 25. Equipo
+
+**Grupo 5 — Desarrollo de Aplicaciones Móviles**
+
+- Ramírez Salazar, Piero Alessandro — Bloque B
+- Sánchez Reyes, Jesús Andres — Bloque C
+- Suárez Vargas, Cesar Manuel — Bloque A
+- Torres Ayala, Samuel Jeremy — Backend, integración y pruebas
+
+---
+
+## 🚀 Estado del proyecto
+
+**S09 Backend:** ✅ COMPLETADO  
+**Pruebas backend:** ✅ 30/30  
+**Supabase:** ✅ Integrado  
+**RLS:** ✅ Implementado  
+**CRUD:** ✅ Implementado  
+**Compra/venta:** ✅ Backend implementado y probado  
+**Hooks:** ✅ Implementados  
+**AsyncStorage:** ✅ Implementado  
+**Frontend Proyecto Final 2:** ⏳ En integración  
+**Prueba punta a punta desde la app:** ⏳ Pendiente  
+**Evidencias finales:** ⏳ Pendiente  
+**Sustentación:** ⏳ Pendiente
