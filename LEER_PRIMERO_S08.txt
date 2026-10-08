@@ -1,0 +1,16 @@
+MARKETBOOK / S08.s2 / GRUPO 5
+INTEGRACION NUEVA: SUPABASE AUTH + POSTGRESQL + DATA REST API
+
+1. Haz copia de tu proyecto original Marketbook.
+2. Copia TODO el contenido de este paquete dentro de esa copia, reemplazando los archivos que coincidan. NO borres assets, App.js ni index.js del proyecto original.
+3. Si ya aplicaste el parche ANTERIOR basado en Node y JSON, elimina SOLO api/, src/services/booksApi.js y README_S08.md que vinieron con ese parche.
+4. En tu proyecto Supabase (preferentemente de pruebas), revisa si ya existen tablas. Si es una instancia vacía, ejecuta supabase/migrations/20260928_s08_publicaciones.sql en SQL Editor.
+5. Copia .env.example a .env y completa tu URL y PUBLISHABLE KEY del proyecto (NUNCA una service_role ni secret key).
+6. En VS Code dentro del proyecto ORIGINAL ya integrado: npm install
+7. Ejecuta npx expo start; presiona w (web) o a (emulador Android encendido).
+8. Regístrate o inicia sesión REALMENTE. Si Supabase exige confirmación de correo, confírmala.
+9. Prueba Explorar (GET), Publicar (POST), Editar (PATCH), Eliminar (DELETE).
+10. Pega las cuatro capturas reales en el Word de evidencias.
+
+IMPORTANTE: Este ZIP es un PARCHE DE INTEGRACION, no el repositorio original completo. Requiere el código base y configurar tu propia instancia de Supabase. El archivo package-lock.json del proyecto original se actualiza al ejecutar npm install.
+NO uses el parche anterior como entrega final. NO he modificado el repositorio en GitHub.
