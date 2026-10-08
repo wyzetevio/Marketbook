@@ -15,7 +15,8 @@ import { useAppTheme, useEstilos } from '../theme';
  * ayuda: texto gris bajo el campo (se oculta si hay error)
  * secureTextEntry: campo de contraseña con icono de ojo para mostrar/ocultar
  * estilo: estilos extra del contenedor
- * Cualquier otra prop (placeholder, keyboardType, maxLength, onSubmitEditing...) va al TextInput.
+ * Cualquier otra prop (placeholder, keyboardType, maxLength, onSubmitEditing...) va al TextInput,
+ * incluida `ref` (React 19), útil para pasar el foco: onSubmitEditing={() => siguienteRef.current?.focus()}
  */
 export default function Input({
   label,
