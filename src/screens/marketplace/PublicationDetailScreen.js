@@ -31,7 +31,7 @@ export default function PublicationDetailScreen({ navigation, route }) {
 
   const { libro, esPropia, cargando, error, refrescar } = usePublicacion(id);
 
-  const { retirar, eliminar } = usePublicacionesActions();
+  const { actualizar, retirar, eliminar } = usePublicacionesActions();
 
   const { agregar, estaEnCarrito } = useCarrito();
 
@@ -99,6 +99,40 @@ export default function PublicationDetailScreen({ navigation, route }) {
           navigation.goBack();
         } catch (e) {
           showMessage("No se pudo retirar", e.message || "Ocurrió un error.");
+        } finally {
+          setProcesando(false);
+        }
+      },
+    );
+  };
+
+  // VOLVER A PUBLICAR UN LIBRO RETIRADO
+  const volverAPublicar = () => {
+    if (!esPropia || !estaRetirada || procesando) return;
+
+    confirmAction(
+      "Volver a publicar",
+      `¿Deseas volver a publicar "${libro.titulo}"? El libro aparecerá nuevamente en Explorar.`,
+      async () => {
+        setProcesando(true);
+
+        try {
+          await actualizar(libro.id, {
+            estado_publicacion: "activa",
+          });
+
+          // Recuperar el estado actualizado desde el backend.
+          await refrescar();
+
+          showMessage(
+            "Publicación reactivada",
+            "Tu libro vuelve a estar disponible en Explorar.",
+          );
+        } catch (e) {
+          showMessage(
+            "No se pudo reactivar",
+            e.message || "Ocurrió un error inesperado.",
+          );
         } finally {
           setProcesando(false);
         }
@@ -322,6 +356,35 @@ export default function PublicationDetailScreen({ navigation, route }) {
             >
               <Text style={styles.textoBotonPrincipal}>Editar publicación</Text>
             </Pressable>
+
+            {/* VOLVER A PUBLICAR */}
+            {estaRetirada && (
+              <Pressable
+                style={[
+                  styles.botonReactivar,
+                  procesando && styles.botonDeshabilitado,
+                ]}
+                disabled={procesando}
+                onPress={volverAPublicar}
+                accessibilityRole="button"
+                accessibilityLabel="Volver a publicar este libro"
+              >
+                {procesando ? (
+                  <ActivityIndicator color={t.colors.textoSobrePrimario} />
+                ) : (
+                  <>
+                    <Ionicons
+                      name="refresh-circle-outline"
+                      size={21}
+                      color={t.colors.textoSobrePrimario}
+                    />
+                    <Text style={styles.textoBotonPrincipal}>
+                      Volver a publicar
+                    </Text>
+                  </>
+                )}
+              </Pressable>
+            )}
 
             {estaActiva && (
               <Pressable
@@ -557,5 +620,16 @@ const crearEstilos = (t) => ({
   textoSecundario: {
     color: t.colors.textoSecundario,
     textAlign: "center",
+  },
+
+  botonReactivar: {
+    backgroundColor: t.colors.primario,
+    borderRadius: t.radius.pill,
+    padding: t.spacing.md,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: t.spacing.sm,
+    minHeight: 48,
   },
 });
