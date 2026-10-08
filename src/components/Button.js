@@ -15,6 +15,7 @@ import { useAppTheme, useEstilos } from '../theme';
  *   'secundario' fondo gris claro
  *   'contorno'   borde gris, fondo de la pantalla
  *   'peligro'    borde y texto rojo
+ *   'peligroRelleno' fondo rojo (confirmar una acción destructiva, p. ej. en HojaConfirmacion)
  *   'texto'      solo texto morado (tipo link)
  * tamano: 'normal' (default) | 'pequeno'
  * cargando: muestra un spinner y bloquea el botón · deshabilitado: lo bloquea
@@ -74,6 +75,7 @@ function coloresDe(c, variante) {
     case 'secundario': return { fondo: c.superficieAlt, borde: c.superficieAlt, texto: c.texto };
     case 'contorno': return { fondo: c.fondo, borde: c.borde, texto: c.texto };
     case 'peligro': return { fondo: c.fondo, borde: c.peligro, texto: c.peligro };
+    case 'peligroRelleno': return { fondo: c.peligro, borde: c.peligro, texto: c.textoSobrePrimario };
     case 'texto': return { fondo: 'transparent', borde: 'transparent', texto: c.acento };
     default: return { fondo: c.primario, borde: c.primario, texto: c.textoSobrePrimario };
   }
