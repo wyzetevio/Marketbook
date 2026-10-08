@@ -8,7 +8,7 @@ Todos funcionan dentro de `AppProviders` (ya envuelto en `App.js`).
 | `useAuth` | Real (Supabase Auth) |
 | `usePublicaciones`, `usePublicacion`, `usePublicacionesActions` | Real (API REST de Supabase) |
 | `useCarrito` | Real (guardado en AsyncStorage por usuario) |
-| `useTema` | Real (guardado en AsyncStorage) |
+| `useTema` | Real (guardado en AsyncStorage por usuario; sin sesión, modo claro) |
 | `usePedidos` | Real (compra con función SQL `crear_pedido`, historial de compras y ventas) |
 | `usePerfil` | Real (nombre editable) |
 
