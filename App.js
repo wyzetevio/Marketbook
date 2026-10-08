@@ -1,5 +1,10 @@
 import AppNavigator from './src/navigation/AppNavigator';
+import AppProviders from './src/hooks/AppProviders';
 
 export default function App() {
-  return <AppNavigator />;
+  return (
+    <AppProviders>
+      <AppNavigator />
+    </AppProviders>
+  );
 }

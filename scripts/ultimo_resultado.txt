@@ -1,0 +1,35 @@
+Marketbook - prueba del backend - 2026-10-08T06:49:40.425Z
+https://ocvegkyuhxixvwftflfj.supabase.co
+
+OK     [Cuentas] Las dos cuentas inician sesión (Supabase Auth)
+OK     [Cuentas] Ambas cuentas tienen su fila en "usuarios" (trigger de perfil)
+OK     [Venta] POST: A publica el libro 1
+OK     [Venta] POST: A publica el libro 2
+OK     [Venta] GET: A ve sus libros (publicaciones?vendedor_id=eq.A)
+OK     [Venta] PATCH: A edita el precio de su libro 1
+OK     [Venta] PATCH: A retira y vuelve a activar su libro 2
+OK     [Explorar] GET: B ve los libros activos de A, con el nombre del vendedor
+OK     [Seguridad] B NO puede editar el libro de A
+OK     [Seguridad] B NO puede borrar el libro de A
+OK     [Seguridad] B NO puede publicar un libro a nombre de A
+OK     [Seguridad] A NO puede marcar su libro como "vendida" a mano
+OK     [Seguridad] El correo de otros usuarios es privado
+OK     [Seguridad] B NO puede escribir directo en "pedidos"
+OK     [Seguridad] Un visitante sin sesión NO puede comprar
+OK     [Seguridad] Un visitante sin sesión no ve publicaciones
+OK     [Compra] Carrito vacío -> error claro
+OK     [Compra] Dirección inválida -> error claro
+OK     [Compra] Libro inexistente -> error claro
+OK     [Compra] A NO puede comprar su propio libro
+OK     [Compra] B compra el libro 1 (POST /rpc/crear_pedido)
+OK     [Compra] El libro 1 queda "vendida"
+OK     [Compra] Comprar el mismo libro otra vez -> "Ya no está disponible"
+OK     [Compra] Compra con un libro inválido no deja nada a medias (todo o nada)
+OK     [Compra] Un libro vendido no se puede editar ni borrar (el historial se conserva)
+OK     [Historial] B ve su compra en "Mis compras" con el detalle
+OK     [Historial] A NO ve las compras de B
+OK     [Historial] A ve la venta en "Mis ventas" con el nombre del comprador
+OK     [Historial] B NO ve esa venta en sus ventas
+OK     [Venta] DELETE: A elimina su libro 2 (no vendido)
+
+TOTAL: 30 OK, 0 fallaron, 0 avisos
