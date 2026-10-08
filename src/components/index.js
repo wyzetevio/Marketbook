@@ -9,3 +9,4 @@ export { default as Header } from './Header';
 export { default as BookCard } from './BookCard';
 export { default as Badge } from './Badge';
 export { default as Aviso } from './Aviso';
+export { default as SplashView } from './SplashView';

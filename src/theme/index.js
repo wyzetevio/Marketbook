@@ -67,3 +67,4 @@ export function useEstilos(crearEstilos) {
 }
 
 export { claro, oscuro, spacing, radius, typography };
+export { getNavigationTheme } from './navegacion';
