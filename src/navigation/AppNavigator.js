@@ -1,18 +1,18 @@
-import React, { useMemo } from 'react';
-import { Platform, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
-import { Ionicons } from '@expo/vector-icons';
-import { useAuth, useCarrito, useTema } from '../hooks';
-import { getNavigationTheme, useAppTheme, useEstilos } from '../theme';
-import { SplashView } from '../components';
-import LoginScreen from '../screens/auth/LoginScreen';
-import RegisterScreen from '../screens/auth/RegisterScreen';
-import PerfilScreen from '../screens/perfil/PerfilScreen';
-import MiCuentaScreen from '../screens/perfil/MiCuentaScreen';
+import React, { useMemo } from "react";
+import { Platform, View } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@expo/vector-icons";
+import { useAuth, useCarrito, useTema } from "../hooks";
+import { getNavigationTheme, useAppTheme, useEstilos } from "../theme";
+import { SplashView } from "../components";
+import LoginScreen from "../screens/auth/LoginScreen";
+import RegisterScreen from "../screens/auth/RegisterScreen";
+import PerfilScreen from "../screens/perfil/PerfilScreen";
+import MiCuentaScreen from "../screens/perfil/MiCuentaScreen";
 // Placeholders temporales: Bloque B y C los reemplazan por sus pantallas reales (ver src/screens/placeholders).
 import {
   CarritoPlaceholder,
@@ -20,13 +20,22 @@ import {
   MisComprasPlaceholder,
   MisLibrosPlaceholder,
   MisVentasPlaceholder,
-} from '../screens/placeholders';
+} from "../screens/placeholders";
+import MarketplaceScreen from "../screens/marketplace/MarketplaceScreen";
+import PublicationDetailScreen from "../screens/marketplace/PublicationDetailScreen";
+import CreatePublicationScreen from "../screens/publications/CreatePublicationScreen";
+import MisPublicacionesScreen from "../screens/publications/MisPublicacionesScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 // Icono de cada tab: relleno cuando está activa, contorno cuando no.
-const ICONOS = { Explorar: 'home', Carrito: 'cart', MisLibros: 'book', Perfil: 'person' };
+const ICONOS = {
+  Explorar: "home",
+  Carrito: "cart",
+  MisLibros: "book",
+  Perfil: "person",
+};
 
 function TabsPrincipales() {
   const t = useAppTheme();
@@ -38,26 +47,43 @@ function TabsPrincipales() {
         headerShown: false, // cada pantalla usa el componente <Header />
         tabBarActiveTintColor: t.colors.acento,
         tabBarInactiveTintColor: t.colors.textoTenue,
-        tabBarStyle: { backgroundColor: t.colors.superficie, borderTopColor: t.colors.borde },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
+        tabBarStyle: {
+          backgroundColor: t.colors.superficie,
+          borderTopColor: t.colors.borde,
+        },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: "500" },
         tabBarIcon: ({ focused, color, size }) => (
-          <Ionicons name={focused ? ICONOS[route.name] : `${ICONOS[route.name]}-outline`} size={size} color={color} />
+          <Ionicons
+            name={
+              focused ? ICONOS[route.name] : `${ICONOS[route.name]}-outline`
+            }
+            size={size}
+            color={color}
+          />
         ),
       })}
     >
       {/* Bloque B (Piero): reemplazar ExplorarPlaceholder por la pantalla Explorar */}
-      <Tab.Screen name="Explorar" component={ExplorarPlaceholder} />
+      <Tab.Screen name="Explorar" component={MarketplaceScreen} />
       {/* Bloque C (Jesús): reemplazar CarritoPlaceholder por la pantalla Carrito */}
       <Tab.Screen
         name="Carrito"
         component={CarritoPlaceholder}
         options={{
           tabBarBadge: cantidad > 0 ? cantidad : undefined,
-          tabBarBadgeStyle: { backgroundColor: t.colors.acento, color: t.colors.textoSobrePrimario, fontSize: 11 },
+          tabBarBadgeStyle: {
+            backgroundColor: t.colors.acento,
+            color: t.colors.textoSobrePrimario,
+            fontSize: 11,
+          },
         }}
       />
       {/* Bloque B (Piero): reemplazar MisLibrosPlaceholder por Mis publicaciones */}
-      <Tab.Screen name="MisLibros" component={MisLibrosPlaceholder} options={{ title: 'Mis libros' }} />
+      <Tab.Screen
+        name="MisLibros"
+        component={MisPublicacionesScreen}
+        options={{ title: "Mis libros" }}
+      />
       <Tab.Screen name="Perfil" component={PerfilScreen} />
     </Tab.Navigator>
   );
@@ -66,7 +92,7 @@ function TabsPrincipales() {
 // En web limita el ancho para que la app se vea como un teléfono; en Android/iOS no hace nada.
 function MarcoWeb({ children }) {
   const styles = useEstilos(crearEstilos);
-  if (Platform.OS !== 'web') return children;
+  if (Platform.OS !== "web") return children;
   return (
     <View style={styles.webFondo}>
       <View style={styles.webTelefono}>{children}</View>
@@ -81,7 +107,7 @@ export default function AppNavigator() {
   const temaNavegacion = useMemo(() => getNavigationTheme(t), [t]);
   const iniciando = loading || cargandoTema;
   // El splash usa el color primario de fondo (invertido respecto a la app), así que la barra también se invierte.
-  const estiloBarra = iniciando ? (t.esOscuro ? 'dark' : 'light') : t.statusBar;
+  const estiloBarra = iniciando ? (t.esOscuro ? "dark" : "light") : t.statusBar;
 
   return (
     <SafeAreaProvider>
@@ -99,8 +125,28 @@ export default function AppNavigator() {
                   {/* Bloque A: Perfil → "Mi cuenta" (editar nombre) */}
                   <Stack.Screen name="MiCuenta" component={MiCuentaScreen} />
                   {/* Bloque C (Jesús): reemplazar los placeholders por Mis compras / Mis ventas (se abren desde Perfil) */}
-                  <Stack.Screen name="MisCompras" component={MisComprasPlaceholder} />
-                  <Stack.Screen name="MisVentas" component={MisVentasPlaceholder} />
+                  {/* BLOQUE B - DETALLE DEL LIBRO */}
+                  <Stack.Screen
+                    name="DetalleLibro"
+                    component={PublicationDetailScreen}
+                  />
+                  <Stack.Screen
+                    name="CreatePublication"
+                    component={CreatePublicationScreen}
+                  />
+
+                  <Stack.Screen
+                    name="EditarLibro"
+                    component={CreatePublicationScreen}
+                  />
+                  <Stack.Screen
+                    name="MisCompras"
+                    component={MisComprasPlaceholder}
+                  />
+                  <Stack.Screen
+                    name="MisVentas"
+                    component={MisVentasPlaceholder}
+                  />
                   {/*
                     Bloque B y C: registrar aquí las pantallas que se abren ENCIMA de las tabs
                     (sin tab bar), por ejemplo:
@@ -124,12 +170,16 @@ export default function AppNavigator() {
 }
 
 const crearEstilos = (t) => ({
-  webFondo: { flex: 1, alignItems: 'center', backgroundColor: t.colors.superficieAlt },
+  webFondo: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: t.colors.superficieAlt,
+  },
   webTelefono: {
     flex: 1,
-    width: '100%',
+    width: "100%",
     maxWidth: 430,
-    overflow: 'hidden',
+    overflow: "hidden",
     backgroundColor: t.colors.fondo,
     borderLeftWidth: 1,
     borderRightWidth: 1,

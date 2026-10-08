@@ -1,79 +1,561 @@
-import React, { useCallback, useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { publicacionesService } from '../../services/publicacionesService';
-import { supabase } from '../../services/supabase/client';
-import { confirmAction, showMessage } from '../../utils/dialogs';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
+
+import { Ionicons } from "@expo/vector-icons";
+
+import {
+  usePublicacion,
+  usePublicacionesActions,
+  useCarrito,
+} from "../../hooks";
+
+import { Header, Badge } from "../../components";
+
+import { useAppTheme, useEstilos } from "../../theme";
+
+import { confirmAction, showMessage } from "../../utils/dialogs";
+
+import { formatearPrecio } from "../../utils/formato";
 
 export default function PublicationDetailScreen({ navigation, route }) {
-  const id = route.params.publicacionId;
-  const [libro, setLibro] = useState(null);
-  const [userId, setUserId] = useState(null);
-  const [cargando, setCargando] = useState(true);
-  const [guardando, setGuardando] = useState(false);
-  const [error, setError] = useState('');
+  const t = useAppTheme();
+  const styles = useEstilos(crearEstilos);
 
-  useFocusEffect(useCallback(() => {
-    let active = true;
-    setCargando(true);
-    Promise.all([publicacionesService.obtener(id), supabase.auth.getUser()])
-      .then(([book, auth]) => {
-        if (!active) return;
-        if (auth.error || !auth.data.user) throw new Error('Debes iniciar sesión.');
-        setLibro(book); setUserId(auth.data.user.id); setError('');
-      })
-      .catch(e => { if (active) setError(e.message); })
-      .finally(() => { if (active) setCargando(false); });
-    return () => { active = false; };
-  }, [id]));
+  const id = route.params?.publicacionId ?? route.params?.id;
 
-  const esPropia = !!libro && !!userId && libro.vendedor_id === userId;
+  const { libro, esPropia, cargando, error, refrescar } = usePublicacion(id);
 
-  const eliminar = () => confirmAction('Eliminar publicación', `¿Eliminar definitivamente "${libro.titulo}"?`, async () => {
+  const { retirar, eliminar } = usePublicacionesActions();
+
+  const { agregar, estaEnCarrito } = useCarrito();
+
+  const [procesando, setProcesando] = useState(false);
+
+  const estado = libro?.estado_publicacion;
+  const estaActiva = estado === "activa";
+  const estaVendida = estado === "vendida";
+  const estaRetirada = estado === "retirada";
+
+  const puedeModificar = esPropia && !estaVendida;
+
+  const puedeAgregar =
+    !!libro && estaActiva && !esPropia && !estaEnCarrito(libro.id);
+
+  const volver = () => navigation.goBack();
+
+  // AGREGAR AL CARRITO
+  const agregarCarrito = async () => {
+    if (!puedeAgregar || procesando) return;
+
+    setProcesando(true);
+
     try {
-      setGuardando(true);
-      await publicacionesService.eliminar(id, userId);
-      showMessage('Publicación eliminada', 'DELETE completado en la API REST.', () => navigation.goBack());
-    } catch (e) { showMessage('No se pudo eliminar', e.message); }
-    finally { setGuardando(false); }
-  });
+      await agregar(libro);
 
-  const retirar = () => confirmAction('Retirar publicación', 'Dejará de aparecer en Explorar, pero seguirá en Mis publicaciones.', async () => {
-    try {
-      setGuardando(true);
-      await publicacionesService.actualizar(id, { estado_publicacion: 'retirada' }, userId);
-      showMessage('Retirada', 'Estado actualizado mediante PATCH.', () => navigation.goBack());
-    } catch (e) { showMessage('No se pudo retirar', e.message); }
-    finally { setGuardando(false); }
-  });
+      showMessage(
+        "Libro agregado",
+        "El libro se agregó correctamente a tu carrito.",
+      );
+    } catch (e) {
+      showMessage("No se pudo agregar", e.message || "Ocurrió un error.");
+    } finally {
+      setProcesando(false);
+    }
+  };
 
-  if (cargando) return <View style={styles.center}><ActivityIndicator/><Text>Consultando publicación (GET)...</Text></View>;
-  if (error || !libro) return <View style={styles.center}><Text style={styles.error}>{error || 'Publicación no encontrada.'}</Text><TouchableOpacity onPress={() => navigation.goBack()}><Text>Volver</Text></TouchableOpacity></View>;
+  // EDITAR PUBLICACIÓN
+  const editarPublicacion = () => {
+    if (!puedeModificar || procesando) return;
 
-  return <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
-    <Text style={styles.title}>{libro.titulo}</Text>
-    <Text style={styles.author}>{libro.autor}</Text>
-    <Text style={styles.label}>Categoría</Text><Text>{libro.categoria || 'Sin especificar'}</Text>
-    <Text style={styles.label}>Estado del libro</Text><Text>{libro.estado_libro}</Text>
-    <Text style={styles.label}>Precio</Text><Text style={styles.price}>S/ {Number(libro.precio).toFixed(2)}</Text>
-    <Text style={styles.label}>Descripción</Text><Text style={styles.description}>{libro.descripcion || 'Sin descripción.'}</Text>
-    <Text style={styles.label}>Estado de publicación</Text><Text>{libro.estado_publicacion}</Text>
-    <Text style={styles.endpoint}>Datos leídos mediante GET /rest/v1/publicaciones</Text>
-    {esPropia ? <>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CreatePublication', { libro })}><Text style={styles.buttonText}>Editar publicación (PATCH)</Text></TouchableOpacity>
-      {libro.estado_publicacion === 'activa' && <TouchableOpacity disabled={guardando} style={[styles.button, styles.secondary]} onPress={retirar}><Text style={styles.buttonText}>Retirar publicación (PATCH)</Text></TouchableOpacity>}
-      <TouchableOpacity disabled={guardando} style={[styles.button, styles.danger]} onPress={eliminar}><Text style={styles.buttonText}>{guardando ? 'Procesando...' : 'Eliminar publicación (DELETE)'}</Text></TouchableOpacity>
-    </> : <Text style={styles.notice}>Solo el vendedor puede modificar o eliminar esta publicación.</Text>}
-  </ScrollView>;
+    navigation.navigate("EditarLibro", {
+      publicacionId: libro.id,
+    });
+  };
+
+  // RETIRAR PUBLICACIÓN
+  const retirarPublicacion = () => {
+    if (!esPropia || !estaActiva || procesando) return;
+
+    confirmAction(
+      "Retirar publicación",
+      "El libro dejará de aparecer en Explorar, pero seguirá en Mis libros.",
+      async () => {
+        setProcesando(true);
+
+        try {
+          await retirar(libro.id);
+
+          showMessage(
+            "Publicación retirada",
+            "El libro se retiró correctamente.",
+          );
+
+          navigation.goBack();
+        } catch (e) {
+          showMessage("No se pudo retirar", e.message || "Ocurrió un error.");
+        } finally {
+          setProcesando(false);
+        }
+      },
+    );
+  };
+
+  // ELIMINAR PUBLICACIÓN
+  const eliminarPublicacion = () => {
+    if (!puedeModificar || procesando) return;
+
+    confirmAction(
+      "Eliminar publicación",
+      `¿Deseas eliminar definitivamente "${libro.titulo}"? Esta acción no se puede deshacer.`,
+      async () => {
+        setProcesando(true);
+
+        try {
+          await eliminar(libro.id);
+
+          showMessage(
+            "Publicación eliminada",
+            "El libro se eliminó correctamente.",
+          );
+
+          navigation.goBack();
+        } catch (e) {
+          showMessage("No se pudo eliminar", e.message || "Ocurrió un error.");
+        } finally {
+          setProcesando(false);
+        }
+      },
+    );
+  };
+
+  // ESTADO DE CARGA
+  if (cargando && !libro) {
+    return (
+      <View style={styles.contenedor}>
+        <Header titulo="Detalle" onAtras={volver} />
+
+        <View style={styles.centro}>
+          <ActivityIndicator size="large" color={t.colors.acento} />
+          <Text style={styles.textoSecundario}>
+            Cargando información del libro...
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  // ESTADO DE ERROR
+  if (error || !libro) {
+    return (
+      <View style={styles.contenedor}>
+        <Header titulo="Detalle" onAtras={volver} />
+
+        <View style={styles.centro}>
+          <Ionicons
+            name="alert-circle-outline"
+            size={48}
+            color={t.colors.textoTenue}
+          />
+
+          <Text style={styles.textoSecundario}>
+            {error ? String(error) : "No se encontró la publicación."}
+          </Text>
+
+          <Pressable style={styles.botonPrincipal} onPress={refrescar}>
+            <Text style={styles.textoBotonPrincipal}>Reintentar</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.contenedor}>
+      <Header titulo="Detalle" onAtras={volver} />
+
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.contenido}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* PORTADA PROVISIONAL */}
+        <View style={styles.portadaContenedor}>
+          <View style={styles.portada}>
+            <Ionicons name="book" size={70} color={t.colors.textoTenue} />
+
+            <Text style={styles.portadaTitulo} numberOfLines={3}>
+              {libro.titulo}
+            </Text>
+          </View>
+        </View>
+
+        {/* INFORMACIÓN PRINCIPAL */}
+        <Text style={styles.titulo}>{libro.titulo}</Text>
+
+        <View style={styles.autorFila}>
+          <Ionicons
+            name="person-circle-outline"
+            size={20}
+            color={t.colors.textoTenue}
+          />
+
+          <Text style={styles.autor}>{libro.autor}</Text>
+        </View>
+
+        {/* CATEGORÍA Y CONDICIÓN */}
+        <View style={styles.badges}>
+          {libro.categoria ? (
+            <Badge texto={libro.categoria} tono="neutro" />
+          ) : null}
+
+          {libro.estado_libro ? (
+            <Badge
+              texto={libro.estado_libro}
+              tono={libro.estado_libro === "Regular" ? "aviso" : "acento"}
+            />
+          ) : null}
+
+          {esPropia ? (
+            <Badge
+              texto={
+                estaActiva ? "Activa" : estaVendida ? "Vendida" : "Retirada"
+              }
+              tono={estaActiva ? "exito" : estaVendida ? "acento" : "neutro"}
+            />
+          ) : null}
+        </View>
+
+        {/* ISBN */}
+        <Text style={styles.meta}>ISBN: {libro.isbn || "No especificado"}</Text>
+
+        {/* PRECIO */}
+        <Text style={styles.precio}>{formatearPrecio(libro.precio)}</Text>
+
+        <View style={styles.divisor} />
+
+        {/* VENDEDOR */}
+        <Text style={styles.subtitulo}>Vendedor</Text>
+
+        <View style={styles.vendedorFila}>
+          <View style={styles.avatar}>
+            <Ionicons name="person" size={22} color={t.colors.textoTenue} />
+          </View>
+
+          <View style={styles.vendedorInfo}>
+            <Text style={styles.vendedorNombre}>
+              {libro.vendedor_nombre || "Vendedor"}
+            </Text>
+
+            <Text style={styles.meta}>Publicado por el vendedor</Text>
+          </View>
+        </View>
+
+        <View style={styles.divisor} />
+
+        {/* DESCRIPCIÓN */}
+        <Text style={styles.subtitulo}>Descripción</Text>
+
+        <Text style={styles.descripcion}>
+          {libro.descripcion || "Sin descripción disponible."}
+        </Text>
+
+        {/* MENSAJES SEGÚN ESTADO */}
+        {estaVendida && (
+          <View style={styles.aviso}>
+            <Ionicons
+              name="checkmark-circle-outline"
+              size={20}
+              color={t.colors.textoSecundario}
+            />
+            <Text style={styles.avisoTexto}>Este libro ya fue vendido.</Text>
+          </View>
+        )}
+
+        {estaRetirada && (
+          <View style={styles.aviso}>
+            <Ionicons
+              name="information-circle-outline"
+              size={20}
+              color={t.colors.textoSecundario}
+            />
+            <Text style={styles.avisoTexto}>
+              Esta publicación fue retirada.
+            </Text>
+          </View>
+        )}
+
+        {/* ACCIONES DEL COMPRADOR */}
+        {!esPropia && estaActiva && (
+          <Pressable
+            style={[
+              styles.botonPrincipal,
+              (!puedeAgregar || procesando) && styles.botonDeshabilitado,
+            ]}
+            disabled={!puedeAgregar || procesando}
+            onPress={agregarCarrito}
+          >
+            {procesando ? (
+              <ActivityIndicator color={t.colors.textoSobrePrimario} />
+            ) : (
+              <Text style={styles.textoBotonPrincipal}>
+                {estaEnCarrito(libro.id)
+                  ? "Ya está en tu carrito"
+                  : "Agregar al carrito"}
+              </Text>
+            )}
+          </Pressable>
+        )}
+
+        {/* ACCIONES DEL PROPIETARIO */}
+        {esPropia && !estaVendida && (
+          <View style={styles.acciones}>
+            <Pressable
+              style={styles.botonPrincipal}
+              disabled={procesando}
+              onPress={editarPublicacion}
+            >
+              <Text style={styles.textoBotonPrincipal}>Editar publicación</Text>
+            </Pressable>
+
+            {estaActiva && (
+              <Pressable
+                style={styles.botonSecundario}
+                disabled={procesando}
+                onPress={retirarPublicacion}
+              >
+                <Text style={styles.textoBotonSecundario}>
+                  Retirar publicación
+                </Text>
+              </Pressable>
+            )}
+
+            <Pressable
+              style={styles.botonPeligro}
+              disabled={procesando}
+              onPress={eliminarPublicacion}
+            >
+              <Text style={styles.textoPeligro}>Eliminar publicación</Text>
+            </Pressable>
+          </View>
+        )}
+
+        {esPropia && estaVendida && (
+          <Text style={styles.nota}>
+            Las publicaciones vendidas no pueden editarse ni eliminarse.
+          </Text>
+        )}
+      </ScrollView>
+    </View>
+  );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 28 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, padding: 20 },
-  title: { fontSize: 25, fontWeight: '700', marginTop: 25 }, author: { color: '#777', marginBottom: 20, marginTop: 4 },
-  label: { fontWeight: '700', marginTop: 16, marginBottom: 4 }, price: { fontSize: 24, fontWeight: '700', color: '#187b55' },
-  description: { color: '#555', lineHeight: 22 }, endpoint: { color: '#777', fontSize: 11, marginTop: 16 },
-  button: { backgroundColor: '#202020', padding: 15, borderRadius: 24, alignItems: 'center', marginTop: 16 },
-  secondary: { backgroundColor: '#8a630a' }, danger: { backgroundColor: '#bb3333' }, buttonText: { color: '#fff', fontWeight: '700' },
-  notice: { color: '#777', marginTop: 18 }, error: { color: '#b22222', textAlign: 'center' },
+const crearEstilos = (t) => ({
+  contenedor: {
+    flex: 1,
+    backgroundColor: t.colors.fondo,
+  },
+
+  scroll: {
+    flex: 1,
+  },
+
+  contenido: {
+    paddingHorizontal: t.spacing.lg,
+    paddingBottom: t.spacing.xl,
+  },
+
+  centro: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: t.spacing.lg,
+    gap: t.spacing.md,
+  },
+
+  portadaContenedor: {
+    alignItems: "center",
+    paddingVertical: t.spacing.lg,
+  },
+
+  portada: {
+    width: 185,
+    height: 265,
+    borderRadius: t.radius.sm,
+    backgroundColor: t.colors.superficieAlt,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: t.spacing.md,
+    gap: t.spacing.md,
+  },
+
+  portadaTitulo: {
+    color: t.colors.textoSecundario,
+    textAlign: "center",
+    fontWeight: "700",
+    fontSize: 13,
+  },
+
+  titulo: {
+    ...t.typography.titulo,
+    color: t.colors.texto,
+    marginTop: t.spacing.md,
+  },
+
+  autorFila: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: t.spacing.sm,
+    marginTop: t.spacing.md,
+  },
+
+  autor: {
+    color: t.colors.textoSecundario,
+    fontSize: 13,
+  },
+
+  badges: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: t.spacing.sm,
+    marginTop: t.spacing.md,
+  },
+
+  meta: {
+    ...t.typography.pequeno,
+    color: t.colors.textoTenue,
+    marginTop: t.spacing.sm,
+  },
+
+  precio: {
+    ...t.typography.precio,
+    fontSize: 25,
+    color: t.colors.acento,
+    marginTop: t.spacing.md,
+  },
+
+  divisor: {
+    height: 1,
+    backgroundColor: t.colors.borde,
+    marginVertical: t.spacing.lg,
+  },
+
+  subtitulo: {
+    ...t.typography.encabezado,
+    color: t.colors.texto,
+    marginBottom: t.spacing.md,
+  },
+
+  vendedorFila: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: t.spacing.md,
+  },
+
+  avatar: {
+    width: 45,
+    height: 45,
+    borderRadius: 23,
+    backgroundColor: t.colors.superficieAlt,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  vendedorInfo: {
+    flex: 1,
+  },
+
+  vendedorNombre: {
+    fontWeight: "700",
+    color: t.colors.texto,
+  },
+
+  descripcion: {
+    fontSize: 13,
+    lineHeight: 21,
+    color: t.colors.textoSecundario,
+  },
+
+  aviso: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: t.spacing.sm,
+    backgroundColor: t.colors.superficieAlt,
+    borderRadius: t.radius.md,
+    padding: t.spacing.md,
+    marginTop: t.spacing.lg,
+  },
+
+  avisoTexto: {
+    flex: 1,
+    color: t.colors.textoSecundario,
+    fontSize: 13,
+  },
+
+  acciones: {
+    gap: t.spacing.md,
+    marginTop: t.spacing.xl,
+  },
+
+  botonPrincipal: {
+    backgroundColor: t.colors.primario,
+    borderRadius: t.radius.pill,
+    padding: t.spacing.md,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: t.spacing.xl,
+    minHeight: 48,
+  },
+
+  textoBotonPrincipal: {
+    color: t.colors.textoSobrePrimario,
+    fontWeight: "700",
+    fontSize: 14,
+  },
+
+  botonDeshabilitado: {
+    opacity: 0.5,
+  },
+
+  botonSecundario: {
+    borderWidth: 1,
+    borderColor: t.colors.borde,
+    borderRadius: t.radius.pill,
+    padding: t.spacing.md,
+    alignItems: "center",
+  },
+
+  textoBotonSecundario: {
+    color: t.colors.texto,
+    fontWeight: "700",
+  },
+
+  botonPeligro: {
+    borderWidth: 1,
+    borderColor: t.colors.peligro || t.colors.texto,
+    borderRadius: t.radius.pill,
+    padding: t.spacing.md,
+    alignItems: "center",
+  },
+
+  textoPeligro: {
+    color: t.colors.peligro || t.colors.texto,
+    fontWeight: "700",
+  },
+
+  nota: {
+    marginTop: t.spacing.xl,
+    color: t.colors.textoSecundario,
+    textAlign: "center",
+  },
+
+  textoSecundario: {
+    color: t.colors.textoSecundario,
+    textAlign: "center",
+  },
 });
