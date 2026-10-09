@@ -13,14 +13,11 @@ import LoginScreen from "../screens/auth/LoginScreen";
 import RegisterScreen from "../screens/auth/RegisterScreen";
 import PerfilScreen from "../screens/perfil/PerfilScreen";
 import MiCuentaScreen from "../screens/perfil/MiCuentaScreen";
-// Placeholders temporales: Bloque B y C los reemplazan por sus pantallas reales (ver src/screens/placeholders).
-import {
-  CarritoPlaceholder,
-  ExplorarPlaceholder,
-  MisComprasPlaceholder,
-  MisLibrosPlaceholder,
-  MisVentasPlaceholder,
-} from "../screens/placeholders";
+import CartScreen from "../screens/cart/CartScreen";
+import CheckoutScreen from "../screens/checkout/CheckoutScreen";
+import OrderSuccessScreen from "../screens/checkout/OrderSuccessScreen";
+import MyPurchasesScreen from "../screens/orders/MyPurchasesScreen";
+import MySalesScreen from "../screens/orders/MySalesScreen";
 import MarketplaceScreen from "../screens/marketplace/MarketplaceScreen";
 import PublicationDetailScreen from "../screens/marketplace/PublicationDetailScreen";
 import CreatePublicationScreen from "../screens/publications/CreatePublicationScreen";
@@ -68,7 +65,7 @@ function TabsPrincipales() {
       {/* Bloque C (Jesús): reemplazar CarritoPlaceholder por la pantalla Carrito */}
       <Tab.Screen
         name="Carrito"
-        component={CarritoPlaceholder}
+        component={CartScreen}
         options={{
           tabBarBadge: cantidad > 0 ? cantidad : undefined,
           tabBarBadgeStyle: {
@@ -141,11 +138,19 @@ export default function AppNavigator() {
                   />
                   <Stack.Screen
                     name="MisCompras"
-                    component={MisComprasPlaceholder}
+                    component={MyPurchasesScreen}
                   />
                   <Stack.Screen
                     name="MisVentas"
-                    component={MisVentasPlaceholder}
+                    component={MySalesScreen}
+                  />
+                  <Stack.Screen
+                    name="Checkout"
+                    component={CheckoutScreen}
+                  />
+                  <Stack.Screen
+                    name="OrderSuccess"
+                    component={OrderSuccessScreen}
                   />
                   {/*
                     Bloque B y C: registrar aquí las pantallas que se abren ENCIMA de las tabs
