@@ -59,66 +59,154 @@ export default function BookCard({
     </View>
   );
   const etiqueta = `${titulo}${autor ? `, de ${autor}` : ''}, ${formatearPrecio(precio)}`;
-  const envolver = (contenido, estiloBase) => (onPress ? (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={etiqueta}
-      style={({ pressed }) => [estiloBase, pressed && styles.presionada]}>
-      {contenido}
-    </Pressable>
-  ) : <View style={estiloBase}>{contenido}</View>);
+  const envolver = (contenido, estiloBase) => (
+    <View style={estiloBase}>
+      {onPress ? (
+        <Pressable
+          onPress={onPress}
+          accessibilityRole="button"
+          accessibilityLabel={etiqueta}
+          style={({ pressed }) => [
+            pressed && styles.presionada,
+          ]}
+        >
+          {contenido}
+        </Pressable>
+      ) : (
+        contenido
+      )}
+    </View>
+  );
 
   if (variante === 'grid') {
-    return envolver(
+    const contenidoGrid = (
       <>
         <View style={styles.portadaGrid}>
           <Ionicons name="book" size={40} color={t.colors.textoTenue} />
         </View>
-        <Text style={styles.titulo} numberOfLines={1}>{titulo}</Text>
-        {autor ? <Text style={styles.autor} numberOfLines={1}>{autor}</Text> : null}
+
+        <Text style={styles.titulo} numberOfLines={1}>
+          {titulo}
+        </Text>
+
+        {autor ? (
+          <Text style={styles.autor} numberOfLines={1}>
+            {autor}
+          </Text>
+        ) : null}
+
         {badges}
+      </>
+    );
+
+    return (
+      <View style={styles.tarjetaGrid}>
+        {onPress ? (
+          <Pressable
+            onPress={onPress}
+            accessibilityRole="button"
+            accessibilityLabel={etiqueta}
+            style={({ pressed }) => [
+              pressed && styles.presionada,
+            ]}
+          >
+            {contenidoGrid}
+          </Pressable>
+        ) : (
+          contenidoGrid
+        )}
+
         <View style={styles.filaPrecio}>
-          <Text style={styles.precio}>{formatearPrecio(precio)}</Text>
+          <Text style={styles.precio}>
+            {formatearPrecio(precio)}
+          </Text>
+
           {onAgregar ? (
             <Pressable
-              onPress={(event) => {
-                event.stopPropagation?.();
-                onAgregar();
-              }}
+              onPress={onAgregar}
               disabled={agregado}
               hitSlop={8}
               accessibilityRole="button"
-              accessibilityLabel={agregado ? 'Ya está en el carrito' : 'Agregar al carrito'}
-              style={({ pressed }) => [styles.botonAgregar, pressed && styles.presionada]}
+              accessibilityLabel={
+                agregado ? 'Ya está en el carrito' : 'Agregar al carrito'
+              }
+              style={({ pressed }) => [
+                styles.botonAgregar,
+                pressed && styles.presionada,
+              ]}
             >
-              <Ionicons name={agregado ? 'checkmark' : 'add'} size={18} color={t.colors.textoSobrePrimario} />
+              <Ionicons
+                name={agregado ? 'checkmark' : 'add'}
+                size={18}
+                color={t.colors.textoSobrePrimario}
+              />
             </Pressable>
           ) : null}
         </View>
-      </>,
-      styles.tarjetaGrid,
+      </View>
     );
   }
 
-  return envolver(
-    <>
+  return (
+    <View style={styles.tarjetaLista}>
       <View style={styles.fila}>
-        <View style={styles.portadaLista}>
-          <Ionicons name="book" size={26} color={t.colors.textoTenue} />
-        </View>
-        <View style={styles.info}>
-          <Text style={styles.titulo} numberOfLines={2}>{titulo}</Text>
-          {autor ? <Text style={styles.autor} numberOfLines={1}>{autor}</Text> : null}
-          {categoria ? <Text style={styles.meta} numberOfLines={1}>{categoria}</Text> : null}
-          {badges}
-          <Text style={[styles.precio, styles.precioLista]}>{formatearPrecio(precio)}</Text>
-          {mostrarVendedor && vendedor_nombre !== undefined ? (
-            <Text style={styles.meta} numberOfLines={1}>Vendedor: {vendedor_nombre || 'Vendedor'}</Text>
-          ) : null}
-        </View>
+        {onPress ? (
+          <Pressable
+            onPress={onPress}
+            accessibilityRole="button"
+            accessibilityLabel={etiqueta}
+            style={({ pressed }) => [
+              styles.contenidoLista,
+              pressed && styles.presionada,
+            ]}
+          >
+            <View style={styles.portadaLista}>
+              <Ionicons name="book" size={26} color={t.colors.textoTenue} />
+            </View>
+
+            <View style={styles.info}>
+              <Text style={styles.titulo} numberOfLines={2}>{titulo}</Text>
+              {autor ? <Text style={styles.autor} numberOfLines={1}>{autor}</Text> : null}
+              {categoria ? <Text style={styles.meta} numberOfLines={1}>{categoria}</Text> : null}
+              {badges}
+              <Text style={[styles.precio, styles.precioLista]}>
+                {formatearPrecio(precio)}
+              </Text>
+              {mostrarVendedor && vendedor_nombre !== undefined ? (
+                <Text style={styles.meta} numberOfLines={1}>
+                  Vendedor: {vendedor_nombre || 'Vendedor'}
+                </Text>
+              ) : null}
+            </View>
+          </Pressable>
+        ) : (
+          <>
+            <View style={styles.portadaLista}>
+              <Ionicons name="book" size={26} color={t.colors.textoTenue} />
+            </View>
+
+            <View style={styles.info}>
+              <Text style={styles.titulo} numberOfLines={2}>{titulo}</Text>
+              {autor ? <Text style={styles.autor} numberOfLines={1}>{autor}</Text> : null}
+              {categoria ? <Text style={styles.meta} numberOfLines={1}>{categoria}</Text> : null}
+              {badges}
+              <Text style={[styles.precio, styles.precioLista]}>
+                {formatearPrecio(precio)}
+              </Text>
+              {mostrarVendedor && vendedor_nombre !== undefined ? (
+                <Text style={styles.meta} numberOfLines={1}>
+                  Vendedor: {vendedor_nombre || 'Vendedor'}
+                </Text>
+              ) : null}
+            </View>
+          </>
+        )}
+
         {derecha ? <View style={styles.derecha}>{derecha}</View> : null}
       </View>
+
       {pie ? <View style={styles.pie}>{pie}</View> : null}
-    </>,
-    styles.tarjetaLista,
+    </View>
   );
 }
 
@@ -134,6 +222,11 @@ const crearEstilos = (t) => ({
     marginBottom: t.spacing.md,
   },
   fila: { flexDirection: 'row' },
+  contenidoLista: {
+    flex: 1,
+    flexDirection: 'row',
+    minWidth: 0,
+  },
   portadaLista: {
     width: 64,
     height: 92,
@@ -143,8 +236,16 @@ const crearEstilos = (t) => ({
     justifyContent: 'center',
     marginRight: t.spacing.md,
   },
-  info: { flex: 1 },
-  derecha: { marginLeft: t.spacing.sm, justifyContent: 'center' },
+  info: {
+    flex: 1,
+    minWidth: 0,
+  },
+  derecha: {
+    marginLeft: t.spacing.sm,
+    justifyContent: 'center',
+    position: 'relative',
+    zIndex: 2,
+  },
   precioLista: { marginTop: t.spacing.xs },
   pie: {
     flexDirection: 'row',

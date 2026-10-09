@@ -27,7 +27,14 @@ function idPublicacionValido(valor) {
 }
 
 export default function CheckoutScreen({ navigation }) {
-  const { items, cantidad, total, cargando, vaciar } = useCarrito();
+  const {
+    items,
+    cantidad,
+    total,
+    cargando,
+    vaciar,
+    comprobarDisponibilidad,
+  } = useCarrito();
   const { comprar } = usePedidos();
   const t = useAppTheme();
   const styles = useEstilos(crearEstilos);
@@ -92,6 +99,38 @@ export default function CheckoutScreen({ navigation }) {
     const ids = items.map((libro) => Number(libro.id));
     if (new Set(ids).size !== ids.length) {
       setErrorCompra('El carrito contiene publicaciones duplicadas. Regresa al carrito y vuelve a intentarlo.');
+      bloqueoCompra.current = false;
+      return;
+    }
+
+
+
+    let idsDisponibles;
+
+    try {
+      idsDisponibles = await comprobarDisponibilidad();
+    } catch (e) {
+      console.warn('Error al comprobar disponibilidad:', e);
+      idsDisponibles = null;
+    }
+
+    if (!Array.isArray(idsDisponibles)) {
+      setErrorCompra(
+        'No pudimos comprobar la disponibilidad de los libros. Revisa tu conexión e inténtalo de nuevo.',
+      );
+      bloqueoCompra.current = false;
+      return;
+    }
+
+    const disponibles = new Set(idsDisponibles.map(Number));
+    const hayNoDisponibles = items.some(
+      (libro) => !disponibles.has(Number(libro.id)),
+    );
+
+    if (hayNoDisponibles) {
+      setErrorCompra(
+        'Algunos libros ya no están disponibles. Vuelve al carrito, quítalos y después intenta comprar nuevamente.',
+      );
       bloqueoCompra.current = false;
       return;
     }
@@ -188,7 +227,19 @@ export default function CheckoutScreen({ navigation }) {
           </View>
 
           {items.map((libro) => (
-            <BookCard key={String(libro.id)} libro={libro} mostrarVendedor={false} />
+            <View key={String(libro.id)}>
+              {libro.noDisponible ? (
+                <Aviso
+                  mensaje={`"${libro.titulo}" ya no está disponible. Regresa al carrito y quítalo antes de continuar.`}
+                  tono="peligro"
+                />
+              ) : null}
+
+              <BookCard
+                libro={libro}
+                mostrarVendedor={false}
+              />
+            </View>
           ))}
 
           <Text style={styles.tituloSeccion}>Entrega</Text>
