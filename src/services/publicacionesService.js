@@ -38,6 +38,27 @@ export const publicacionesService = {
     return normalizar(filas[0]);
   },
 
+  // GET: comprobar cuáles de los libros del carrito siguen disponibles.
+  // Supabase solo muestra publicaciones activas de otros vendedores;
+  // los IDs que no aparecen ya no están disponibles para este comprador.
+  async comprobarDisponibilidad(ids) {
+    const validos = [...new Set((ids || []).map(Number))]
+      .filter((id) => Number.isSafeInteger(id) && id > 0);
+
+    if (validos.length === 0) return [];
+
+    const listaIds = validos.join(',');
+    const filas = await apiRequest(RECURSO, {
+      query: `?select=id,estado_publicacion&id=in.(${listaIds})`,
+    });
+
+    return filas
+      .filter((fila) => fila.estado_publicacion === 'activa')
+      .map((fila) => Number(fila.id));
+  },
+
+
+
   // POST: publicar un libro
   async crear(payload, vendedorId) {
     const filas = await apiRequest(RECURSO, {

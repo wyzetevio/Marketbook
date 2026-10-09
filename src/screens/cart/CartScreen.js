@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useCarrito } from '../../hooks';
@@ -15,11 +15,28 @@ import {
 import { formatearPrecio } from '../../utils/formato';
 
 export default function CartScreen({ navigation }) {
-  const { items, cantidad, total, cargando, quitar, vaciar } = useCarrito();
+  const {
+    items,
+    cantidad,
+    total,
+    cargando,
+    comprobando,
+    errorDisponibilidad,
+    comprobarDisponibilidad,
+    quitar,
+    vaciar,
+  } = useCarrito();
   const t = useAppTheme();
   const styles = useEstilos(crearEstilos);
   const [confirmandoVaciar, setConfirmandoVaciar] = useState(false);
   const [error, setError] = useState('');
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      comprobarDisponibilidad();
+    });
+
+    return unsubscribe;
+  }, [navigation, comprobarDisponibilidad]);
 
   const continuarExplorando = () => {
     setError('');
@@ -66,7 +83,7 @@ export default function CartScreen({ navigation }) {
     );
   }
 
-  const accionVaciar = cantidad > 0 ? (
+  const accionVaciar = items.length > 0 ? (
     <Pressable
       onPress={() => {
         setError('');
@@ -93,11 +110,16 @@ export default function CartScreen({ navigation }) {
         <Text style={styles.total}>{formatearPrecio(total)}</Text>
       </View>
 
+
       <Button
         titulo="Proceder al checkout"
         icono="arrow-forward-outline"
         onPress={irAlCheckout}
-        deshabilitado={cantidad === 0}
+        deshabilitado={
+          cantidad === 0 ||
+          comprobando ||
+          !!errorDisponibilidad
+        }
       />
       <Button
         titulo="Continuar explorando"
@@ -112,7 +134,7 @@ export default function CartScreen({ navigation }) {
     <View style={styles.pantalla}>
       <Header titulo="Mi carrito" derecha={accionVaciar} />
 
-      {cantidad === 0 ? (
+      {items.length === 0 ? (
         <View style={styles.vacio}>
           {error ? <Aviso mensaje={error} /> : null}
           <EmptyState
@@ -131,6 +153,16 @@ export default function CartScreen({ navigation }) {
         >
           {error ? <Aviso mensaje={error} /> : null}
 
+          {errorDisponibilidad ? (
+            <Aviso mensaje={errorDisponibilidad} tono="peligro" />
+          ) : null}
+
+          {comprobando ? (
+            <Text style={styles.ayuda}>
+              Comprobando disponibilidad de los libros...
+            </Text>
+          ) : null}
+
           <View style={styles.resumenSuperior}>
             <Text style={styles.cantidad}>
               {cantidad} {cantidad === 1 ? 'libro' : 'libros'}
@@ -138,23 +170,39 @@ export default function CartScreen({ navigation }) {
             <Text style={styles.ayuda}>Cada publicación corresponde a un ejemplar único.</Text>
           </View>
 
+
           {items.map((libro) => (
-            <BookCard
-              key={String(libro.id)}
-              libro={libro}
-              mostrarVendedor={false}
-              derecha={(
-                <Pressable
-                  onPress={() => eliminarLibro(libro.id)}
-                  hitSlop={10}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Quitar ${libro.titulo} del carrito`}
-                  style={({ pressed }) => [styles.eliminar, pressed && styles.presionado]}
-                >
-                  <Ionicons name="trash-outline" size={20} color={t.colors.peligro} />
-                </Pressable>
-              )}
-            />
+            <View key={String(libro.id)}>
+              {libro.noDisponible ? (
+                <Aviso
+                  mensaje={`"${libro.titulo}" ya no está disponible. Puedes quitarlo del carrito.`}
+                  tono="peligro"
+                />
+              ) : null}
+
+              <BookCard
+                libro={libro}
+                mostrarVendedor={false}
+                derecha={(
+                  <Pressable
+                    onPress={() => eliminarLibro(libro.id)}
+                    hitSlop={10}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Quitar ${libro.titulo} del carrito`}
+                    style={({ pressed }) => [
+                      styles.eliminar,
+                      pressed && styles.presionado,
+                    ]}
+                  >
+                    <Ionicons
+                      name="trash-outline"
+                      size={20}
+                      color={t.colors.peligro}
+                    />
+                  </Pressable>
+                )}
+              />
+            </View>
           ))}
         </ScrollView>
       )}
