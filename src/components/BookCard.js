@@ -79,7 +79,10 @@ export default function BookCard({
           <Text style={styles.precio}>{formatearPrecio(precio)}</Text>
           {onAgregar ? (
             <Pressable
-              onPress={onAgregar}
+              onPress={(event) => {
+                event.stopPropagation?.();
+                onAgregar();
+              }}
               disabled={agregado}
               hitSlop={8}
               accessibilityRole="button"
